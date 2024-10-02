@@ -15,9 +15,8 @@ class FirebaseController {
       FirebaseController._privateConstructor();
   FirebaseController._privateConstructor();
 
-
-
-  Future<void> login(BuildContext context, String email, String password, String userName) async {
+  Future<void> login(BuildContext context, String email, String password,
+      String userName) async {
     try {
       // Firebase sign in
       UserCredential credential = await _auth.signInWithEmailAndPassword(
@@ -25,16 +24,16 @@ class FirebaseController {
 
       // Save login state to SharedPreferences
       await _saveLoginState(credential.user!.uid);
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen(),));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => HomeScreen(),
+      ));
     } catch (error) {
       print('Error during login: $error');
       Fluttertoast.showToast(
-          msg: error.toString(),
+        msg: error.toString(),
       );
     }
   }
-
-
 
   Future<void> signup(String email, String password, String userName) async {
     try {
@@ -50,10 +49,7 @@ class FirebaseController {
       );
 
       // Save user to Firestore using user's UID
-      _firestore
-          .collection('users')
-          .doc(email)
-          .set(user.toJson());
+      _firestore.collection('users').doc(email).set(user.toJson());
 
       // Save login state to SharedPreferences
       await _saveLoginState(credential.user!.uid);
@@ -64,7 +60,6 @@ class FirebaseController {
       );
     }
   }
-
 
   // Function to save the login state in SharedPreferences
   Future<void> _saveLoginState(String userId) async {

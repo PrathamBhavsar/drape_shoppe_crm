@@ -6,6 +6,127 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Icon(
+              Icons.menu_rounded,
+              size: 30,
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  showDragHandle: true,
+                  elevation: 1.5,
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (context) {
+                    return FractionallySizedBox(
+                      heightFactor: 0.7,
+                      child: Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Users',
+                              style: TextStyle(
+                                  fontSize: 25, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 10),
+                            // Search Field
+                            TextField(
+                              focusNode: searchFocusNode,
+                              controller: searchController,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                hintText: 'Search Here',
+                                prefixIcon: Icon(Icons.search_rounded),
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            // List of Users
+                            Expanded(
+                              // Wrap ListView in Expanded to take remaining space
+                              child: userNames.isEmpty
+                                  ? const Center(
+                                      child:
+                                          CircularProgressIndicator()) // Loading indicator
+                                  : ListView.builder(
+                                      itemCount: userNames.length,
+                                      itemBuilder: (context, index) {
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                const SizedBox(
+                                                  width: 12,
+                                                ),
+                                                Container(
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    color: Colors.red,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  height: 40,
+                                                  width: 40,
+                                                ),
+                                                const SizedBox(
+                                                  width: 12,
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      userNames[index],
+                                                      style: const TextStyle(
+                                                          fontSize: 18),
+                                                    ),
+                                                    const Text('Tasks: 10'),
+                                                  ],
+                                                ),
+                                              ],
+                                            ), // Display each user's name
+
+                                            const Divider(), // Divider between each ListTile
+                                          ],
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              icon: const Icon(
+                Icons.people_outline_rounded,
+                size: 30,
+              ),
+            ),
+            SizedBox(
+              width: 20,
+            ),
+            const Icon(
+              Icons.notifications_none_rounded,
+              size: 30,
+            ),
+            Container(
+              height: 12,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(20)),
+            ),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
@@ -85,12 +206,12 @@ class TableWidget extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Text('Name',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Text('Incomplete Task',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ],
         ),
@@ -98,8 +219,7 @@ class TableWidget extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text('Alpesh Desai',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              child: Text('Alpesh Desai'),
             ),
             Padding(
               padding: EdgeInsets.all(8.0),
@@ -216,7 +336,7 @@ class CustomGridTile extends StatelessWidget {
                   children: [
                     Text(
                       headTxt,
-                      style: const TextStyle(fontSize: 18),
+                      style: const TextStyle(fontSize: 14),
                     ),
                     Text(
                       amount,

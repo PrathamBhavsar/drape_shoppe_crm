@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
+import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -8,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late final List<String> userNames = [];
   int _currentIndex = 0;
   final List<Widget> _pages = [
     HomePage(),
@@ -19,34 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(
-              Icons.menu_rounded,
-              size: 30,
-            ),
-            const Spacer(),
-            const Icon(
-              Icons.people_outline_rounded,
-              size: 30,
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            const Icon(
-              Icons.notifications_none_rounded,
-              size: 30,
-            ),
-            Container(
-              height: 12,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadiusDirectional.circular(20)),
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: SizedBox(
         height: 75,
         child: BottomNavigationBar(
