@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
+import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,22 +14,34 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<String> userNames = [];
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    HomePage(),
-    TasksPage(),
-    HomePage(),
-    TasksPage(),
+    const HomePage(),
+    const TasksPage(),
+    const HomePage(),
+    const TasksPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const AddTaskScreen(),
+          ));
+        },
+        child: const Icon(
+          Icons.add,
+          size: 30,
+        ),
+      ),
       bottomNavigationBar: SizedBox(
         height: 75,
         child: BottomNavigationBar(
           onTap: _handleBottomBarTap,
           currentIndex: _currentIndex,
           iconSize: 30,
-          unselectedLabelStyle: TextStyle(color: Colors.black, fontSize: 14),
+          unselectedLabelStyle:
+              const TextStyle(color: Colors.black, fontSize: 14),
           selectedItemColor: Colors.blue,
           type: BottomNavigationBarType.fixed,
           items: const [

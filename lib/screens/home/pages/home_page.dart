@@ -1,7 +1,23 @@
+import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final FocusNode searchFocusNode = FocusNode();
+  final TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    Provider.of<HomeProvider>(context, listen: false).getUsers();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,95 +33,7 @@ class HomePage extends StatelessWidget {
             const Spacer(),
             IconButton(
               onPressed: () {
-                showModalBottomSheet(
-                  showDragHandle: true,
-                  elevation: 1.5,
-                  isScrollControlled: true,
-                  context: context,
-                  builder: (context) {
-                    return FractionallySizedBox(
-                      heightFactor: 0.7,
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Users',
-                              style: TextStyle(
-                                  fontSize: 25, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            // Search Field
-                            TextField(
-                              focusNode: searchFocusNode,
-                              controller: searchController,
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                hintText: 'Search Here',
-                                prefixIcon: Icon(Icons.search_rounded),
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            // List of Users
-                            Expanded(
-                              // Wrap ListView in Expanded to take remaining space
-                              child: userNames.isEmpty
-                                  ? const Center(
-                                      child:
-                                          CircularProgressIndicator()) // Loading indicator
-                                  : ListView.builder(
-                                      itemCount: userNames.length,
-                                      itemBuilder: (context, index) {
-                                        return Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const SizedBox(
-                                                  width: 12,
-                                                ),
-                                                Container(
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    color: Colors.red,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  height: 40,
-                                                  width: 40,
-                                                ),
-                                                const SizedBox(
-                                                  width: 12,
-                                                ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      userNames[index],
-                                                      style: const TextStyle(
-                                                          fontSize: 18),
-                                                    ),
-                                                    const Text('Tasks: 10'),
-                                                  ],
-                                                ),
-                                              ],
-                                            ), // Display each user's name
-
-                                            const Divider(), // Divider between each ListTile
-                                          ],
-                                        );
-                                      },
-                                    ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
+                _buildUserModelSheet();
               },
               icon: const Icon(
                 Icons.people_outline_rounded,
@@ -184,6 +112,95 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
+  _buildUserModelSheet() {
+    final homeProvider = Provider.of<HomeProvider>(context);
+    return showModalBottomSheet(
+      showDragHandle: true,
+      elevation: 1.5,
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.7,
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Users',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                // Search Field
+                TextField(
+                  focusNode: searchFocusNode,
+                  controller: searchController,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    hintText: 'Search Here',
+                    prefixIcon: Icon(Icons.search_rounded),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // List of Users
+                Expanded(
+                  // Wrap ListView in Expanded to take remaining space
+                  child: homeProvider.userNames.isEmpty
+                      ? const Center(
+                          child:
+                              CircularProgressIndicator()) // Loading indicator
+                      : ListView.builder(
+                          itemCount: homeProvider.userNames.length,
+                          itemBuilder: (context, index) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 12,
+                                    ),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      height: 40,
+                                      width: 40,
+                                    ),
+                                    const SizedBox(
+                                      width: 12,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          homeProvider.userNames[index],
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                        const Text('Tasks: 10'),
+                                      ],
+                                    ),
+                                  ],
+                                ), // Display each user's name
+
+                                const Divider(), // Divider between each ListTile
+                              ],
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class TableWidget extends StatelessWidget {
@@ -194,7 +211,7 @@ class TableWidget extends StatelessWidget {
     return Table(
       border: const TableBorder(
         horizontalInside: BorderSide(width: 1, color: Colors.grey),
-        verticalInside: BorderSide(width: 1, color: Colors.grey),
+        // verticalInside: BorderSide(width: 1, color: Colors.grey),
       ),
       columnWidths: const {
         0: FlexColumnWidth(1.5),
