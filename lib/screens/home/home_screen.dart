@@ -1,5 +1,3 @@
-import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
-import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {

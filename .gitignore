@@ -38,10 +38,15 @@ app.*.symbols
 app.*.map.json
 
 # Android Studio will place build artifacts here
+
 /android/app/debug
 /android/app/profile
-/android/app/release
+/android/app/
 
-lib/firebase_options.dart
+firebase.json
 android/app/google-services.json
-/firebase.json
+lib/firebase_options.dart
+
+backend/node_modules
+backend/.env
+
