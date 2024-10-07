@@ -18,7 +18,7 @@ Future<void> main() async {
   runApp(ChangeNotifierProvider(
     create: (context) => HomeProvider.instance,
     child: MyApp(isLoggedIn: isLoggedIn),
-  ));
+  ),);
 }
 
 class MyApp extends StatelessWidget {

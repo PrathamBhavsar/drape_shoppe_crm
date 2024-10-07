@@ -6,6 +6,16 @@ class HomeProvider extends ChangeNotifier {
   HomeProvider._privateConstructor();
 
   List<String> userNames = [];
+  List<String> taskStatus = [
+    "Pending",
+    "Closed - lost",
+    "Closed - won",
+    "Measurement",
+    "Quote review",
+    "Site long delay",
+    "So & advance",
+    "Store visit / selection"
+  ];
 
   Future<void> getUsers() async {
     try {
