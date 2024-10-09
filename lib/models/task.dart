@@ -13,6 +13,7 @@ class TaskModel {
   final Map<String, String> comments;
   final String status;
   final int progress;
+  final List<String> attachments;
 
   TaskModel({
     required this.dealNo,
@@ -27,6 +28,7 @@ class TaskModel {
     required this.comments,
     required this.status,
     required this.progress,
+    required this.attachments,
   });
 
   // JSON to TaskModel object
@@ -44,6 +46,7 @@ class TaskModel {
       comments: Map<String, String>.from(json['comments'] as Map),
       status: json['status'] as String,
       progress: json['progress'] as int,
+      attachments: List<String>.from(json['attachments']),
     );
   }
 
@@ -62,6 +65,7 @@ class TaskModel {
       'comments': comments,
       'status': status,
       'progress': progress,
+      'attachments': attachments,
     };
   }
 }

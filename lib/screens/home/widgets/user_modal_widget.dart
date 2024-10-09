@@ -40,12 +40,9 @@ class _UserModalWidgetState extends State<UserModalWidget> {
               ),
             ),
             const SizedBox(height: 20),
-            // List of Users
             Expanded(
-              // Wrap ListView in Expanded to take remaining space
               child: homeProvider.userNames.isEmpty
-                  ? const Center(
-                      child: CircularProgressIndicator()) // Loading indicator
+                  ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
                       itemCount: homeProvider.userNames.length,
                       itemBuilder: (context, index) {

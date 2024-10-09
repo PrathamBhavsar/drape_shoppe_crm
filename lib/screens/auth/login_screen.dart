@@ -1,5 +1,7 @@
+import 'package:drape_shoppe_crm/router/routes.dart';
 import 'package:drape_shoppe_crm/screens/auth/signup_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/firebase_controller.dart';
 
@@ -71,9 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const Spacer(),
             GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SignupScreen(),
-                  ));
+                  context.goNamed('signup');
                 },
                 child: const Text('Dont have an account? Sign Up!'))
           ],

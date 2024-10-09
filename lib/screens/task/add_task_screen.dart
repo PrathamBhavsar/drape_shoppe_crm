@@ -1,7 +1,15 @@
 import 'package:drape_shoppe_crm/constants/app_constants.dart';
-import 'package:drape_shoppe_crm/screens/home/widgets/task_modal_widgets.dart';
+import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
+import 'package:drape_shoppe_crm/providers/home_provider.dart';
+import 'package:drape_shoppe_crm/router/routes.dart';
+import 'package:drape_shoppe_crm/screens/task/widgets/task_modal_widgets.dart';
 import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import 'widgets/custom_task_icon_widget.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -18,23 +26,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     {'text': 'High', 'color': const Color.fromARGB(255, 255, 160, 160)},
   ];
 
-  String? selectedValue;
+  String? selectedPriority;
   TextEditingController descController = TextEditingController();
-  TextEditingController taskNameController = TextEditingController();
+  TextEditingController titleController = TextEditingController();
   TextEditingController assignedtoController = TextEditingController();
+  TextEditingController designerController = TextEditingController();
 
   FocusNode descFocusNode = FocusNode();
   FocusNode taskNameFocusNode = FocusNode();
   FocusNode assignedtoFocusNode = FocusNode();
-
-  void doSomething() {
-    assignedtoFocusNode.addListener(() {
-      if (assignedtoFocusNode.hasFocus) {
-        _buildUserModelSheet();
-        print('object');
-      }
-    });
-  }
+  FocusNode designerFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -67,10 +68,40 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 },
               );
             },
-            child: Text(
-              'pending',
+            child: Consumer<HomeProvider>(
+              builder: (BuildContext context, provider, Widget? child) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 18.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: provider.taskStatus[provider.selectedStatusIndex]
+                            ["secondaryColor"]),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          CustomTaskIconWidget(
+                            color: provider
+                                    .taskStatus[provider.selectedStatusIndex]
+                                ["primaryColor"],
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            provider.selectedStatus,
+                            style: TextStyle(
+                                color: provider.taskStatus[provider
+                                    .selectedStatusIndex]["primaryColor"],
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -79,38 +110,30 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           child: Column(
             children: [
               Container(
-                // color: Colors.red,
-                height: 50, // Height of the outer container
+                height: 50,
                 child: Row(
                   children: [
                     Container(
-                      height: 40, // Set the same height as the outer container
-                      width: 100, // Adjust width if needed
+                      height: 40,
+                      width: 100,
                       child: DropdownButtonHideUnderline(
-                        // Hide the default underline of the DropdownButton
                         child: DropdownButton<String>(
-                          value: selectedValue,
+                          value: selectedPriority,
                           hint: Row(
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: priorityValues.firstWhere((item) =>
-                                        item['text'] ==
-                                        (selectedValue == null
-                                            ? 'Low'
-                                            : selectedValue))['color']),
-                                height: 9,
-                                width: 9,
-                              ),
-                              const SizedBox(
-                                  width: 8), // Spacing between icon and text
+                              CustomTaskIconWidget(
+                                  color: priorityValues.firstWhere((item) =>
+                                      item['text'] ==
+                                      (selectedPriority == null
+                                          ? 'Low'
+                                          : selectedPriority))['color']),
+                              const SizedBox(width: 10),
                               Text(
                                 priorityValues.firstWhere((item) =>
                                     item['text'] ==
-                                    (selectedValue == null
+                                    (selectedPriority == null
                                         ? 'Low'
-                                        : selectedValue))['text'],
+                                        : selectedPriority))['text'],
                                 style: TextStyle(fontSize: 16),
                               ),
                             ],
@@ -120,7 +143,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           isExpanded: true,
                           onChanged: (String? newValue) {
                             setState(() {
-                              selectedValue = newValue;
+                              selectedPriority = newValue;
                             });
                           },
                           items: priorityValues.map<DropdownMenuItem<String>>(
@@ -129,17 +152,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 value: item['text'],
                                 child: Row(
                                   children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: item['color'],
-                                      ),
-                                      height: 9,
-                                      width: 9,
+                                    CustomTaskIconWidget(
+                                      color: item['color'],
                                     ),
                                     const SizedBox(
                                         width:
-                                            8), // Spacing between icon and text
+                                            10), // Spacing between icon and text
                                     Text(
                                       item['text'],
                                       style: TextStyle(fontSize: 16),
@@ -156,7 +174,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         width: 10), // Spacing between dropdown and text field
                     Expanded(
                       child: CustomTextFeild(
-                        controller: taskNameController,
+                        controller: titleController,
                         focusNode: taskNameFocusNode,
                         hint: 'Task Name',
                       ),
@@ -186,65 +204,84 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     controller: assignedtoController,
                     focusNode: assignedtoFocusNode,
                     hint: 'Assigned to',
-                    readOnly: true,
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    showDragHandle: true,
-                    elevation: 1.5,
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (context) {
-                      return UserModalWidget();
-                    },
-                  );
-                },
-                style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
-                  padding: WidgetStateProperty.all(AppConstants.appPadding),
-                ),
-                child: Text(
-                  'Add attachments',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
+              CustomTextFeild(
+                controller: designerController,
+                focusNode: designerFocusNode,
+                hint: 'Designer',
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  _buildAttachmentModalSheet() {
-    return showModalBottomSheet(
-      showDragHandle: true,
-      elevation: 1.5,
-      isScrollControlled: true,
-      context: context,
-      builder: (context) {
-        return UserModalWidget();
-      },
-    );
-  }
-
-  _buildUserModelSheet() {
-    return showModalBottomSheet(
-      showDragHandle: true,
-      elevation: 1.5,
-      isScrollControlled: true,
-      context: context,
-      builder: (context) {
-        return UserModalWidget();
-      },
+      bottomSheet: Padding(
+        padding: AppConstants.appPadding,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  showDragHandle: true,
+                  elevation: 1.5,
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (context) {
+                    return AttachmentsModelWidget();
+                  },
+                );
+              },
+              style: ButtonStyle(
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
+                padding: WidgetStateProperty.all(AppConstants.appPadding),
+              ),
+              child: Text(
+                'Add attachments',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // FirebaseController.instance.setTask(
+                //   selectedPriority!,
+                //   titleController.text,
+                //   descController.text,
+                //   designerController.text,
+                //   100,
+                //   HomeProvider.instance.selectedStatus,
+                //   {'test': 'no'},
+                //   ['test'],
+                //   HomeProvider.instance.pickedFile,
+                // );
+                context.goNamed('home');
+                // Fluttertoast.showToast(
+                //   msg: "Uploaded!",
+                // );
+              },
+              style: ButtonStyle(
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.all(Colors.blueAccent),
+                padding: WidgetStateProperty.all(AppConstants.appPadding),
+              ),
+              child: Text(
+                'Create Task',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -265,18 +302,21 @@ class CustomTextFeild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      readOnly: readOnly ?? false,
-      controller: controller,
-      focusNode: focusNode,
-      decoration: InputDecoration(
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        readOnly: readOnly ?? false,
+        controller: controller,
+        focusNode: focusNode,
+        decoration: InputDecoration(
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          border: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          hintText: hint,
         ),
-        border: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        hintText: hint,
       ),
     );
   }

@@ -1,19 +1,95 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:drape_shoppe_crm/main.dart';
+import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/models/user.dart';
 import 'package:drape_shoppe_crm/screens/home/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
 class FirebaseController {
   FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseStorage _storage = FirebaseStorage.instance;
   static final FirebaseController instance =
       FirebaseController._privateConstructor();
   FirebaseController._privateConstructor();
+
+  Future<void> setTask(
+      String priority,
+      String title,
+      String description,
+      String designer,
+      int progress,
+      String status,
+      Map<String, String> comments,
+      List<String> assignedTo,
+      List<String> fileDir) async {
+    DateTime now = DateTime.now();
+    String dealNo = DateFormat('yyyyMMddHHmmss').format(now);
+    String? createdBy = _auth.currentUser!.email;
+
+    // Upload attachments and get their URLs
+    List<String> attachmentUrls = await storeAttachments(dealNo, fileDir);
+
+    // Log to ensure URLs are collected
+    print(attachmentUrls);
+
+    // Create the task model
+    TaskModel task = TaskModel(
+      dealNo: dealNo,
+      createdAt: now,
+      createdBy: createdBy!,
+      assignedTo: assignedTo,
+      priority: priority,
+      title: title,
+      description: description,
+      dueDate: now,
+      designer: designer,
+      comments: comments,
+      status: status,
+      progress: progress,
+      attachments: attachmentUrls,
+    );
+
+    // Store the task in Firestore
+    await _firestore.collection('tasks').doc(dealNo).set(task.toJson());
+  }
+
+  Future<List<String>> storeAttachments(
+      String dealNo, List<String> fileDir) async {
+    final storageRef = _storage.ref();
+    List<String> attachmentUrls = [];
+
+    // Use a regular for-loop to await the async tasks
+    for (String filePath in fileDir) {
+      try {
+        final String fileName = basename(filePath);
+        final Reference fileRef = storageRef.child("$dealNo/$fileName");
+
+        // Upload the file
+        await fileRef.putFile(File(filePath));
+
+        // Get the download URL
+        String downloadUrl = await fileRef.getDownloadURL();
+        attachmentUrls.add(downloadUrl);
+
+        // Log each URL
+        print(downloadUrl);
+      } catch (e) {
+        print('Error uploading $filePath: $e');
+      }
+    }
+
+    // Return the list of download URLs after all uploads are completed
+    return attachmentUrls;
+  }
 
   Future<void> login(BuildContext context, String email, String password,
       String userName) async {
@@ -24,9 +100,7 @@ class FirebaseController {
 
       // Save login state to SharedPreferences
       await _saveLoginState(credential.user!.uid);
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => HomeScreen(),
-      ));
+      context.goNamed('home');
     } catch (error) {
       print('Error during login: $error');
       Fluttertoast.showToast(
@@ -76,6 +150,6 @@ class FirebaseController {
     await FirebaseAuth.instance.signOut();
 
     // Navigate back to the login screen
-    Navigator.of(context).pushReplacementNamed('/login');
+    context.goNamed('login');
   }
 }

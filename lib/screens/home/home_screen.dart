@@ -1,7 +1,9 @@
+import 'package:drape_shoppe_crm/router/routes.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
 import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,9 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => const AddTaskScreen(),
-          ));
+          context.goNamed('addTask');
         },
         child: const Icon(
           Icons.add,

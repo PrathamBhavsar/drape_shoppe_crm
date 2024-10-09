@@ -1,5 +1,6 @@
 import 'package:drape_shoppe_crm/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/firebase_controller.dart';
 
@@ -76,13 +77,17 @@ class _SignupScreenState extends State<SignupScreen> {
               ],
             ),
             ElevatedButton(
-                onPressed: () => FirebaseController.instance
-                    .signup(emailController.text, passwordController.text, nameController.text),
+                onPressed: () => FirebaseController.instance.signup(
+                    emailController.text,
+                    passwordController.text,
+                    nameController.text),
                 child: const Text('Sign Up')),
             Spacer(),
-            GestureDetector(onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen(),));
-            }, child: Text('Already have an account? Login'))
+            GestureDetector(
+                onTap: () {
+                  context.goNamed('login');
+                },
+                child: Text('Already have an account? Login'))
           ],
         ),
       ),
