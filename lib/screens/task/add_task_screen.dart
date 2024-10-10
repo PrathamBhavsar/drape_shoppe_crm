@@ -20,13 +20,7 @@ class AddTaskScreen extends StatefulWidget {
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
   // Define priority values with text and color
-  List<Map<String, dynamic>> priorityValues = [
-    {'text': 'Low', 'color': const Color.fromARGB(255, 182, 255, 220)},
-    {'text': 'Medium', 'color': const Color.fromARGB(255, 254, 254, 226)},
-    {'text': 'High', 'color': const Color.fromARGB(255, 255, 160, 160)},
-  ];
 
-  String? selectedPriority;
   TextEditingController descController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   TextEditingController assignedtoController = TextEditingController();
@@ -34,7 +28,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   FocusNode descFocusNode = FocusNode();
   FocusNode taskNameFocusNode = FocusNode();
-  FocusNode assignedtoFocusNode = FocusNode();
+  FocusNode assignedToFocusNode = FocusNode();
   FocusNode designerFocusNode = FocusNode();
 
   @override
@@ -47,6 +41,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        forceMaterialTransparency: true,
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -116,58 +111,56 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     Container(
                       height: 40,
                       width: 100,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: selectedPriority,
-                          hint: Row(
-                            children: [
-                              CustomTaskIconWidget(
-                                  color: priorityValues.firstWhere((item) =>
-                                      item['text'] ==
-                                      (selectedPriority == null
-                                          ? 'Low'
-                                          : selectedPriority))['color']),
-                              const SizedBox(width: 10),
-                              Text(
-                                priorityValues.firstWhere((item) =>
-                                    item['text'] ==
-                                    (selectedPriority == null
-                                        ? 'Low'
-                                        : selectedPriority))['text'],
-                                style: TextStyle(fontSize: 16),
+                      child: Consumer<HomeProvider>(
+                        builder:
+                            (BuildContext context, provider, Widget? child) {
+                          return DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                              value: provider.selectedPriorityIndex,
+                              hint: Row(
+                                children: [
+                                  CustomTaskIconWidget(
+                                    color: provider.priorityValues[provider
+                                        .selectedPriorityIndex]["color"],
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    provider.priorityValues[
+                                        provider.selectedPriorityIndex]["text"],
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          icon: const Icon(Icons.arrow_drop_down_rounded),
-                          iconSize: 18,
-                          isExpanded: true,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedPriority = newValue;
-                            });
-                          },
-                          items: priorityValues.map<DropdownMenuItem<String>>(
-                            (Map<String, dynamic> item) {
-                              return DropdownMenuItem<String>(
-                                value: item['text'],
-                                child: Row(
-                                  children: [
-                                    CustomTaskIconWidget(
-                                      color: item['color'],
-                                    ),
-                                    const SizedBox(
-                                        width:
-                                            10), // Spacing between icon and text
-                                    Text(
-                                      item['text'],
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
+                              icon: const Icon(Icons.arrow_drop_down_rounded),
+                              iconSize: 18,
+                              isExpanded: true,
+                              onChanged: (int? newIndex) {
+                                provider.setSelectedPriority(newIndex!);
+                              },
+                              items: List.generate(
+                                  provider.priorityValues.length, (index) {
+                                final item = provider.priorityValues[index];
+                                return DropdownMenuItem<int>(
+                                  value: index,
+                                  child: Row(
+                                    children: [
+                                      CustomTaskIconWidget(
+                                        color: item['color'],
+                                      ),
+                                      const SizedBox(
+                                          width:
+                                              10), // Spacing between icon and text
+                                      Text(
+                                        item['text'],
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(
@@ -202,7 +195,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 child: Container(
                   child: CustomTextFeild(
                     controller: assignedtoController,
-                    focusNode: assignedtoFocusNode,
+                    focusNode: assignedToFocusNode,
                     hint: 'Assigned to',
                   ),
                 ),

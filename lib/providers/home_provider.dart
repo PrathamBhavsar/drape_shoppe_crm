@@ -8,16 +8,14 @@ class HomeProvider extends ChangeNotifier {
   HomeProvider._privateConstructor();
 
   List<String> userNames = [];
-  // List<String> taskStatus = [
-  //   "Pending",
-  //   "Closed - lost",
-  //   "Closed - won",
-  //   "Measurement",
-  //   "Quote review",
-  //   "Site long delay",
-  //   "So & advance",
-  //   "Store visit / selection"
-  // ];
+  List<Map<String, dynamic>> priorityValues = [
+    {"text": "Low", "color": const Color.fromARGB(255, 182, 255, 220)},
+    {"text": "Medium", "color": const Color.fromARGB(255, 254, 254, 226)},
+    {"text": "High", "color": const Color.fromARGB(255, 255, 160, 160)},
+  ];
+
+  late String selectedPriority = priorityValues[0]["text"];
+  int selectedPriorityIndex = 0;
 
   List<String> pickedFile = [];
 
@@ -70,6 +68,12 @@ class HomeProvider extends ChangeNotifier {
   void setSelectedStatus(int index) {
     selectedStatus = taskStatus[index]["text"];
     selectedStatusIndex = index;
+    notifyListeners();
+  }
+
+  void setSelectedPriority(int index) {
+    selectedPriority = priorityValues[index]["text"];
+    selectedPriorityIndex = index;
     notifyListeners();
   }
 
