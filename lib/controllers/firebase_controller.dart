@@ -21,6 +21,12 @@ class FirebaseController {
       FirebaseController._privateConstructor();
   FirebaseController._privateConstructor();
 
+  Future<void> fetchComments(String dealNo) async {
+    DocumentSnapshot snapshot =
+        await _firestore.collection('tasks').doc(dealNo).get();
+    Map<String, dynamic> comments = snapshot.data()['comments'];
+  }
+
   Future<void> setTask(
       String priority,
       String title,

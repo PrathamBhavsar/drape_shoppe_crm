@@ -2,6 +2,7 @@ import 'package:drape_shoppe_crm/constants/app_constants.dart';
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/router/routes.dart';
+import 'package:drape_shoppe_crm/screens/task/widgets/custom_text_feild.dart';
 import 'package:drape_shoppe_crm/screens/task/widgets/task_modal_widgets.dart';
 import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
@@ -214,6 +215,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            IconButton(
+              onPressed: () => context.goNamed('comments'),
+              icon: Icon(Icons.comment_outlined),
+            ),
             ElevatedButton(
               onPressed: () {
                 showModalBottomSheet(
@@ -242,21 +247,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // FirebaseController.instance.setTask(
-                //   selectedPriority!,
-                //   titleController.text,
-                //   descController.text,
-                //   designerController.text,
-                //   100,
-                //   HomeProvider.instance.selectedStatus,
-                //   {'test': 'no'},
-                //   ['test'],
-                //   HomeProvider.instance.pickedFile,
-                // );
+                FirebaseController.instance.setTask(
+                  HomeProvider.instance.selectedPriority,
+                  titleController.text,
+                  descController.text,
+                  designerController.text,
+                  100,
+                  HomeProvider.instance.selectedStatus,
+                  {'test': 'no'},
+                  ['test'],
+                  HomeProvider.instance.pickedFile,
+                );
                 context.goNamed('home');
-                // Fluttertoast.showToast(
-                //   msg: "Uploaded!",
-                // );
+                Fluttertoast.showToast(
+                  msg: "Task Created!",
+                );
               },
               style: ButtonStyle(
                 shape: WidgetStatePropertyAll(
@@ -273,42 +278,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class CustomTextFeild extends StatelessWidget {
-  const CustomTextFeild({
-    super.key,
-    required this.controller,
-    required this.focusNode,
-    required this.hint,
-    this.readOnly,
-  });
-
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final String hint;
-  final bool? readOnly;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: TextField(
-        readOnly: readOnly ?? false,
-        controller: controller,
-        focusNode: focusNode,
-        decoration: InputDecoration(
-          focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          border: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          hintText: hint,
         ),
       ),
     );

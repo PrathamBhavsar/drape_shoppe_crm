@@ -1,5 +1,6 @@
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/router/routes.dart';
+import 'package:drape_shoppe_crm/screens/task/comments_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -29,8 +30,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: MyRouter.router(isLoggedIn),
+    return MaterialApp(
+      home: CommentsScreen(),
     );
+    // return MaterialApp.router(
+    //   routerConfig: MyRouter.router(isLoggedIn),
+    // );
   }
 }
