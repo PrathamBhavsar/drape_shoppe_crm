@@ -2,15 +2,14 @@ import 'package:drape_shoppe_crm/screens/auth/login_screen.dart';
 import 'package:drape_shoppe_crm/screens/auth/signup_screen.dart';
 import 'package:drape_shoppe_crm/screens/home/home_screen.dart';
 import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
-import 'package:drape_shoppe_crm/screens/task/comments_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 abstract class MyRouter {
   static GoRouter router(bool isLoggedIn) {
-    return GoRouter(initialLocation: isLoggedIn ? '/' : '/signup', routes: [
+    return GoRouter(initialLocation: isLoggedIn ? '/home' : '/signup', routes: [
       GoRoute(
-        path: '/',
+        path: '/home',
         name: 'home',
         builder: (BuildContext context, GoRouterState state) => HomeScreen(),
       ),
@@ -28,12 +27,6 @@ abstract class MyRouter {
         path: '/addTask',
         name: 'addTask',
         builder: (BuildContext context, GoRouterState state) => AddTaskScreen(),
-      ),
-      GoRoute(
-        path: '/comments',
-        name: 'comments',
-        builder: (BuildContext context, GoRouterState state) =>
-            CommentsScreen(),
       ),
     ]);
   }

@@ -1,7 +1,6 @@
-import 'package:drape_shoppe_crm/router/routes.dart';
+import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
-import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,10 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<String> userNames = [];
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    const HomePage(),
     const TasksPage(),
     const HomePage(),
-    const TasksPage(),
   ];
 
   @override
@@ -27,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          HomeProvider.instance.setDealNo();
           context.goNamed('addTask');
         },
         child: const Icon(
@@ -53,22 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Tasks',
               icon: Icon(Icons.task_alt_rounded),
             ),
-            BottomNavigationBarItem(
-              label: 'Home',
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(
-                Icons.home_filled,
-                color: Colors.blue,
-              ),
-            ),
-            BottomNavigationBarItem(
-              label: 'Home',
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(
-                Icons.home_filled,
-                color: Colors.blue,
-              ),
-            ),
           ],
         ),
       ),
@@ -81,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
   _handleBottomBarTap(int index) {
     setState(() {
       _currentIndex = index;
+      print(_currentIndex);
     });
   }
 }

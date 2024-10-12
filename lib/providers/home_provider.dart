@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class HomeProvider extends ChangeNotifier {
   static final HomeProvider instance = HomeProvider._privateConstructor();
@@ -18,6 +19,9 @@ class HomeProvider extends ChangeNotifier {
   int selectedPriorityIndex = 0;
 
   List<String> pickedFile = [];
+
+  DateTime now = DateTime.now();
+  String dealNo = '';
 
   List<Map<String, dynamic>> taskStatus = [
     {
@@ -74,6 +78,23 @@ class HomeProvider extends ChangeNotifier {
   void setSelectedPriority(int index) {
     selectedPriority = priorityValues[index]["text"];
     selectedPriorityIndex = index;
+    notifyListeners();
+  }
+
+  String setDealNo() {
+    DateTime rightNow = DateTime.now();
+    now = rightNow;
+    dealNo = DateFormat('yyyyMMddHHmmss').format(rightNow);
+    print(dealNo);
+    print(now);
+    notifyListeners();
+    return dealNo;
+  }
+
+  String comment = '';
+  void setComment(String text) {
+    comment = text;
+    print(comment);
     notifyListeners();
   }
 

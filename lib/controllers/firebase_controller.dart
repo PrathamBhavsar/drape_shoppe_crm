@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drape_shoppe_crm/models/comment.dart';
 import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/models/user.dart';
-import 'package:drape_shoppe_crm/screens/home/home_screen.dart';
+import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +21,36 @@ class FirebaseController {
       FirebaseController._privateConstructor();
   FirebaseController._privateConstructor();
 
-  Future<void> fetchComments(String dealNo) async {
-    DocumentSnapshot snapshot =
+  Future<Map<String, dynamic>> fetchTasksList() async {
+    Map<String, dynamic> tasks = {};
+    await _firestore
+        .collection('tasks')
+        .where("progress", isEqualTo: 100)
+        .get()
+        .then((snapshot) {
+      for (var docSnapshot in snapshot.docs) {
+        tasks.addAll(docSnapshot.data());
+      }
+    });
+    return tasks;
+  }
+
+  Future<CommentModel> addComment() async {
+    String comment = HomeProvider.instance.comment;
+    DateTime now = DateTime.now();
+    String? user = _auth.currentUser!.email;
+    return CommentModel(user: user!, createdAt: now, comment: comment);
+  }
+
+  Future<List<CommentModel>> fetchComments(String dealNo) async {
+    DocumentSnapshot<Map<String, dynamic>> snapshot =
         await _firestore.collection('tasks').doc(dealNo).get();
-    Map<String, dynamic> comments = snapshot.data()['comments'];
+
+    Map<String, dynamic> comments = snapshot['comments'];
+
+    return comments.entries.map((entry) {
+      return CommentModel.fromJson(entry.value);
+    }).toList();
   }
 
   Future<void> setTask(
@@ -34,16 +60,18 @@ class FirebaseController {
       String designer,
       int progress,
       String status,
-      Map<String, String> comments,
       List<String> assignedTo,
       List<String> fileDir) async {
-    DateTime now = DateTime.now();
-    String dealNo = DateFormat('yyyyMMddHHmmss').format(now);
+    DateTime now = HomeProvider.instance.now;
+    String dealNo = HomeProvider.instance.dealNo;
     String? createdBy = _auth.currentUser!.email;
 
     // Upload attachments and get their URLs
     List<String> attachmentUrls = await storeAttachments(dealNo, fileDir);
-
+    CommentModel comment = CommentModel(
+        user: createdBy!,
+        createdAt: now,
+        comment: HomeProvider.instance.comment);
     // Log to ensure URLs are collected
     print(attachmentUrls);
 
@@ -51,14 +79,14 @@ class FirebaseController {
     TaskModel task = TaskModel(
       dealNo: dealNo,
       createdAt: now,
-      createdBy: createdBy!,
+      createdBy: createdBy,
       assignedTo: assignedTo,
       priority: priority,
       title: title,
       description: description,
       dueDate: now,
       designer: designer,
-      comments: comments,
+      comments: {dealNo: comment},
       status: status,
       progress: progress,
       attachments: attachmentUrls,

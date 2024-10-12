@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drape_shoppe_crm/models/comment.dart';
 
 class TaskModel {
   final String dealNo;
@@ -10,7 +11,7 @@ class TaskModel {
   final String description;
   final DateTime dueDate;
   final String designer;
-  final Map<String, String> comments;
+  final Map<String, CommentModel> comments; // Map of CommentModels
   final String status;
   final int progress;
   final List<String> attachments;
@@ -33,6 +34,12 @@ class TaskModel {
 
   // JSON to TaskModel object
   factory TaskModel.fromJson(Map<String, dynamic> json) {
+    // Convert the 'comments' field, which is a Map of Maps, into a Map of CommentModel objects
+    Map<String, CommentModel> commentsMap =
+        (json['comments'] as Map<String, dynamic>).map((key, value) {
+      return MapEntry(key, CommentModel.fromJson(value));
+    });
+
     return TaskModel(
       dealNo: json['deal_no'] as String,
       createdAt: (json['created_at'] as Timestamp).toDate(),
@@ -43,7 +50,7 @@ class TaskModel {
       description: json['description'] as String,
       dueDate: (json['due_date'] as Timestamp).toDate(),
       designer: json['designer'] as String,
-      comments: Map<String, String>.from(json['comments'] as Map),
+      comments: commentsMap,
       status: json['status'] as String,
       progress: json['progress'] as int,
       attachments: List<String>.from(json['attachments']),
@@ -52,6 +59,11 @@ class TaskModel {
 
   // TaskModel object to JSON
   Map<String, dynamic> toJson() {
+    // Convert the comments map to a map of JSON objects
+    Map<String, dynamic> commentsMap = comments.map((key, commentModel) {
+      return MapEntry(key, commentModel.toJson());
+    });
+
     return {
       'deal_no': dealNo,
       'created_at': Timestamp.fromDate(createdAt),
@@ -62,7 +74,7 @@ class TaskModel {
       'description': description,
       'due_date': Timestamp.fromDate(dueDate),
       'designer': designer,
-      'comments': comments,
+      'comments': commentsMap, // Save comments as a map of JSON objects
       'status': status,
       'progress': progress,
       'attachments': attachments,
