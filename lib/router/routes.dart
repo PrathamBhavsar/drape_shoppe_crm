@@ -23,11 +23,6 @@ abstract class MyRouter {
         name: 'signup',
         builder: (BuildContext context, GoRouterState state) => SignupScreen(),
       ),
-      GoRoute(
-        path: '/addTask',
-        name: 'addTask',
-        builder: (BuildContext context, GoRouterState state) => AddTaskScreen(),
-      ),
     ]);
   }
 }

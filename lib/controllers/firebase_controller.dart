@@ -21,18 +21,38 @@ class FirebaseController {
       FirebaseController._privateConstructor();
   FirebaseController._privateConstructor();
 
-  Future<Map<String, dynamic>> fetchTasksList() async {
-    Map<String, dynamic> tasks = {};
+  // Future<Map<String, dynamic>> fetchTasksList() async {
+  //   Map<String, dynamic> tasks = {};
+  //   await _firestore
+  //       .collection('tasks')
+  //       .where("progress", isEqualTo: 100)
+  //       .get()
+  //       .then((snapshot) {
+  //     for (var docSnapshot in snapshot.docs) {
+  //       tasks.addAll(docSnapshot.data());
+  //     }
+  //   });
+  //   return tasks;
+  // }
+
+  Future<List<TaskModel>> fetchTasksList() async {
+    List<TaskModel> tasks = [];
     await _firestore
         .collection('tasks')
         .where("progress", isEqualTo: 100)
         .get()
         .then((snapshot) {
       for (var docSnapshot in snapshot.docs) {
-        tasks.addAll(docSnapshot.data());
+        tasks.add(TaskModel.fromJson(docSnapshot.data()));
       }
     });
     return tasks;
+  }
+
+  Future<void> getTask(String dealNo) async {
+    dynamic snapshot = await _firestore.collection('tasks').doc(dealNo).get();
+    TaskModel task = TaskModel.fromJson(snapshot);
+    print(task);
   }
 
   Future<CommentModel> addComment() async {

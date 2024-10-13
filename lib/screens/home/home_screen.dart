@@ -1,6 +1,7 @@
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
+import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,7 +26,13 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HomeProvider.instance.setDealNo();
-          context.goNamed('addTask');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddTaskScreen(
+                isNewTask: true,
+              ),
+            ),
+          );
         },
         child: const Icon(
           Icons.add,

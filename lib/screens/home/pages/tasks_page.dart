@@ -1,6 +1,7 @@
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
+import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -65,13 +66,13 @@ class _TasksPageState extends State<TasksPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Total Tasks',
+                'Your Tasks',
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Container(
                 height: 400,
-                child: FutureBuilder<Map<String, dynamic>>(
+                child: FutureBuilder<List<TaskModel>>(
                     future: FirebaseController.instance.fetchTasksList(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -84,11 +85,33 @@ class _TasksPageState extends State<TasksPage> {
                           child: Text(snapshot.error.toString()),
                         );
                       }
-
+                      List<TaskModel> tasks = snapshot.data!;
                       return ListView.builder(
-                        itemCount: snapshot.data!.entries.length,
+                        itemCount: tasks.length,
                         itemBuilder: (context, index) {
-                          return Text("${snapshot.data!["title"]} - $index");
+                          TaskModel task = tasks[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => AddTaskScreen(
+                                    dealNo: task.dealNo,
+                                    isNewTask: false,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(task.dealNo),
+                                Text(task.createdBy),
+                                Text(task.title),
+                                SizedBox(height: 5),
+                                Divider()
+                              ],
+                            ),
+                          );
                         },
                       );
                     }),

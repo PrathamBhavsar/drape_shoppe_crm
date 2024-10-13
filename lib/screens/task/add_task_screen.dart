@@ -1,28 +1,27 @@
 import 'package:drape_shoppe_crm/constants/app_constants.dart';
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
-import 'package:drape_shoppe_crm/router/routes.dart';
 import 'package:drape_shoppe_crm/screens/task/comments_screen.dart';
 import 'package:drape_shoppe_crm/screens/task/widgets/custom_text_feild.dart';
 import 'package:drape_shoppe_crm/screens/task/widgets/task_modal_widgets.dart';
 import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 import 'widgets/custom_task_icon_widget.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+  const AddTaskScreen({super.key, required this.isNewTask, this.dealNo});
+  final String? dealNo;
+  final bool isNewTask;
 
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
-  // Define priority values with text and color
-
   TextEditingController descController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   TextEditingController assignedtoController = TextEditingController();
@@ -35,8 +34,17 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    descController.dispose();
+    titleController.dispose();
+    assignedtoController.dispose();
+    designerController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    FirebaseController.instance.getTask(widget.dealNo!);
+    super.initState();
   }
 
   @override
