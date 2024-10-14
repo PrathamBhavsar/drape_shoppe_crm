@@ -49,10 +49,11 @@ class FirebaseController {
     return tasks;
   }
 
-  Future<void> getTask(String dealNo) async {
-    dynamic snapshot = await _firestore.collection('tasks').doc(dealNo).get();
-    TaskModel task = TaskModel.fromJson(snapshot);
-    print(task);
+  Future<TaskModel> getTask(String dealNo) async {
+    DocumentSnapshot<Map<String, dynamic>> snapshot =
+        await _firestore.collection('tasks').doc(dealNo).get();
+    TaskModel task = TaskModel.fromJson(snapshot.data()!);
+    return task;
   }
 
   Future<CommentModel> addComment() async {
@@ -84,6 +85,49 @@ class FirebaseController {
       List<String> fileDir) async {
     DateTime now = HomeProvider.instance.now;
     String dealNo = HomeProvider.instance.dealNo;
+    String? createdBy = _auth.currentUser!.email;
+
+    // Upload attachments and get their URLs
+    List<String> attachmentUrls = await storeAttachments(dealNo, fileDir);
+    CommentModel comment = CommentModel(
+        user: createdBy!,
+        createdAt: now,
+        comment: HomeProvider.instance.comment);
+    // Log to ensure URLs are collected
+    print(attachmentUrls);
+
+    // Create the task model
+    TaskModel task = TaskModel(
+      dealNo: dealNo,
+      createdAt: now,
+      createdBy: createdBy,
+      assignedTo: assignedTo,
+      priority: priority,
+      title: title,
+      description: description,
+      dueDate: now,
+      designer: designer,
+      comments: {dealNo: comment},
+      status: status,
+      progress: progress,
+      attachments: attachmentUrls,
+    );
+
+    // Store the task in Firestore
+    await _firestore.collection('tasks').doc(dealNo).set(task.toJson());
+  }
+
+  Future<void> editTask(
+      String dealNo,
+      String priority,
+      String title,
+      String description,
+      String designer,
+      int progress,
+      String status,
+      List<String> assignedTo,
+      List<String> fileDir) async {
+    DateTime now = HomeProvider.instance.now;
     String? createdBy = _auth.currentUser!.email;
 
     // Upload attachments and get their URLs

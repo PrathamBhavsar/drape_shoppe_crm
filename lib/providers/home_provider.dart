@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
+import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 
 class HomeProvider extends ChangeNotifier {
   static final HomeProvider instance = HomeProvider._privateConstructor();
@@ -79,6 +81,34 @@ class HomeProvider extends ChangeNotifier {
   void setSelectedPriority(int index) {
     selectedPriority = priorityValues[index]["text"];
     selectedPriorityIndex = index;
+    notifyListeners();
+  }
+
+  Future<void> setControllers(
+      String dealNo,
+      TextEditingController title,
+      TextEditingController desc,
+      TextEditingController assignedTo,
+      TextEditingController designer) async {
+    TaskModel task = await FirebaseController.instance.getTask(dealNo);
+    title.text = task.title;
+    desc.text = task.description;
+    String assignedToUser = task.assignedTo.join(', ');
+    assignedTo.text = assignedToUser;
+    designer.text = task.designer;
+
+    for (int index = 0; index < taskStatus.length; index++) {
+      var status = taskStatus[index];
+      if (status['text'] == task.status) {
+        selectedStatusIndex = index;
+      }
+    }
+    for (int index = 0; index < priorityValues.length; index++) {
+      var priority = priorityValues[index];
+      if (priority['text'] == task.priority) {
+        selectedPriorityIndex = index;
+      }
+    }
     notifyListeners();
   }
 
