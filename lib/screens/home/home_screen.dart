@@ -1,3 +1,4 @@
+import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
@@ -16,8 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<String> userNames = [];
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    const TasksPage(),
     const HomePage(),
+    const TasksPage(),
   ];
 
   @override
@@ -25,14 +26,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          HomeProvider.instance.setDealNo();
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => AddTaskScreen(
-                isNewTask: true,
-              ),
-            ),
-          );
+          HomeProvider.instance.setIncompleteTasks();
+          // HomeProvider.instance.setDealNo();
+          // Navigator.of(context).push(
+          //   MaterialPageRoute(
+          //     builder: (context) => AddTaskScreen(
+          //       isNewTask: true,
+          //     ),
+          //   ),
+          // );
         },
         child: const Icon(
           Icons.add,

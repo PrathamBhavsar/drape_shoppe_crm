@@ -35,6 +35,24 @@ class FirebaseController {
   //   return tasks;
   // }
 
+  Future<List<TaskModel>> fetchIncompleteTasks() async {
+    List<TaskModel> incompleteTasks = [];
+    final querySnapshot = await _firestore
+        .collection('tasks')
+        .where("status", isNotEqualTo: "Closed - lost")
+        .get();
+
+    final filteredDocs = querySnapshot.docs
+        .where((doc) => doc["status"] != "Closed - won")
+        .toList();
+
+    for (var docSnapshot in filteredDocs) {
+      incompleteTasks.add(TaskModel.fromJson(docSnapshot.data()));
+    }
+
+    return incompleteTasks;
+  }
+
   Future<List<TaskModel>> fetchTasksList() async {
     List<TaskModel> tasks = [];
     await _firestore

@@ -1,3 +1,5 @@
+import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
+import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
@@ -56,57 +58,63 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
-            child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Overall Summary',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            Container(
-              child: GridView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 2 / 1,
-                ),
-                children: const [
-                  CustomGridTile(
-                    color: Colors.blue,
-                    headTxt: 'Total Task',
-                    amount: '9',
-                  ),
-                  CustomGridTile(
-                    color: Colors.orange,
-                    headTxt: 'Assigned',
-                    amount: '9',
-                  ),
-                  CustomGridTile(
-                    color: Colors.redAccent,
-                    headTxt: 'Due Today',
-                    amount: '0',
-                  ),
-                  CustomGridTile(
-                    color: Colors.lightGreen,
-                    headTxt: 'Past Due',
-                    amount: '8',
-                  ),
-                ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Overall Summary',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Team Tasks',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-            const Card(
-              elevation: 5,
-              child:
-                  Padding(padding: EdgeInsets.all(18.0), child: TableWidget()),
-            ),
-          ],
-        )),
+              Container(
+                child: Consumer<HomeProvider>(
+                  builder: (BuildContext context, provider, Widget? child) {
+                    return GridView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 2 / 1,
+                      ),
+                      children: [
+                        const CustomGridTile(
+                          color: Colors.blue,
+                          headTxt: 'Total Task',
+                          amount: '9',
+                        ),
+                        CustomGridTile(
+                          color: Colors.orange,
+                          headTxt: 'Assigned',
+                          amount: provider.assignedTasks.toString(),
+                        ),
+                        CustomGridTile(
+                          color: Colors.redAccent,
+                          headTxt: 'Due Today',
+                          amount: provider.dueTodayTasks.toString(),
+                        ),
+                        CustomGridTile(
+                          color: Colors.lightGreen,
+                          headTxt: 'Past Due',
+                          amount: provider.dueTodayTasks.toString(),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Team Tasks',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
+              Card(
+                elevation: 5,
+                child: Padding(
+                    padding: const EdgeInsets.all(18.0), child: TableWidget()),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -125,20 +133,21 @@ class _HomePageState extends State<HomePage> {
 }
 
 class TableWidget extends StatelessWidget {
-  const TableWidget({super.key});
+  TableWidget({super.key});
+  Map<String, int> taskData = HomeProvider.instance.userTaskCount;
 
   @override
   Widget build(BuildContext context) {
     return Table(
-      border: const TableBorder(
+      border: TableBorder(
         horizontalInside: BorderSide(width: 1, color: Colors.grey),
         // verticalInside: BorderSide(width: 1, color: Colors.grey),
       ),
-      columnWidths: const {
+      columnWidths: {
         0: FlexColumnWidth(1.5),
         1: FlexColumnWidth(1),
       },
-      children: const [
+      children: [
         TableRow(
           children: [
             Padding(
@@ -153,78 +162,20 @@ class TableWidget extends StatelessWidget {
             ),
           ],
         ),
-        TableRow(
-          children: [
+        ...taskData.entries.map((task) {
+          return TableRow(children: [
             Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text('Alpesh Desai'),
+              child: Text(task.key),
             ),
             Padding(
               padding: EdgeInsets.all(8.0),
-              child: Text('1'),
+              child: Text(
+                task.value.toString(),
+              ),
             ),
-          ],
-        ),
-        TableRow(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Bhushan Zare'),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('1'),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Chirag Keswani'),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('0'),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Darshan Panpaliya'),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('0'),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Neha Thakur'),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('1'),
-            ),
-          ],
-        ),
-        TableRow(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Sangita Bishwakarma'),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('0'),
-            ),
-          ],
-        ),
+          ]);
+        })
       ],
     );
   }
