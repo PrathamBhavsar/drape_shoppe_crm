@@ -1,6 +1,7 @@
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
+import 'package:drape_shoppe_crm/screens/home/widgets/custom_table_widget.dart';
 import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -110,7 +111,12 @@ class _HomePageState extends State<HomePage> {
               Card(
                 elevation: 5,
                 child: Padding(
-                    padding: const EdgeInsets.all(18.0), child: TableWidget()),
+                  padding: const EdgeInsets.all(18.0),
+                  child: TableWidget(
+                    columnHeaders: ['Name', 'Incomplete Tasks'],
+                    rowData: HomeProvider.instance.userTaskCountList,
+                  ),
+                ),
               ),
             ],
           ),
@@ -132,54 +138,54 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class TableWidget extends StatelessWidget {
-  TableWidget({super.key});
-  Map<String, int> taskData = HomeProvider.instance.userTaskCount;
-
-  @override
-  Widget build(BuildContext context) {
-    return Table(
-      border: TableBorder(
-        horizontalInside: BorderSide(width: 1, color: Colors.grey),
-        // verticalInside: BorderSide(width: 1, color: Colors.grey),
-      ),
-      columnWidths: {
-        0: FlexColumnWidth(1.5),
-        1: FlexColumnWidth(1),
-      },
-      children: [
-        TableRow(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Name',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text('Incomplete Task',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            ),
-          ],
-        ),
-        ...taskData.entries.map((task) {
-          return TableRow(children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(task.key),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                task.value.toString(),
-              ),
-            ),
-          ]);
-        })
-      ],
-    );
-  }
-}
+// class TableWidget extends StatelessWidget {
+//   TableWidget({super.key});
+//   Map<String, int> taskData = HomeProvider.instance.userTaskCount;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Table(
+//       border: TableBorder(
+//         horizontalInside: BorderSide(width: 1, color: Colors.grey),
+//         // verticalInside: BorderSide(width: 1, color: Colors.grey),
+//       ),
+//       columnWidths: {
+//         0: FlexColumnWidth(1.5),
+//         1: FlexColumnWidth(1),
+//       },
+//       children: [
+//         TableRow(
+//           children: [
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text('Name',
+//                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+//             ),
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text('Incomplete Task',
+//                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+//             ),
+//           ],
+//         ),
+//         ...taskData.entries.map((task) {
+//           return TableRow(children: [
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text(task.key),
+//             ),
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text(
+//                 task.value.toString(),
+//               ),
+//             ),
+//           ]);
+//         })
+//       ],
+//     );
+//   }
+// }
 
 class CustomGridTile extends StatelessWidget {
   const CustomGridTile(

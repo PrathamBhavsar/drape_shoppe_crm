@@ -84,12 +84,12 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Map<String, int> userTaskCount = {};
-
   int assignedTasks = 0;
   int dueTodayTasks = 0;
   int pastDueTasks = 0;
 
+  //saves list of fetched taskmodels in a var
+  //increaments the values of the home screen data based on the taskmodels
   Future<void> setAssignedTasks() async {
     final taskList = await FirebaseController.instance.fetchTasksList();
     Timestamp timestamp = Timestamp.now();
@@ -108,13 +108,18 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Map<String, int> userTaskCount = {};
+  List<Map<String, int>> userTaskCountList = [];
+
   Future<void> setIncompleteTasks() async {
     // Fetch the incomplete tasks from Firestore (assuming fetchIncompleteTasks is correctly implemented)
     List<TaskModel> tasks =
         await FirebaseController.instance.fetchIncompleteTasks();
 
-    // Initialize a map to store the usernames and the count of tasks assigned to them
-    userTaskCount = {};
+    // Clear the map and list to avoid duplication
+    userTaskCount.clear();
+    userTaskCountList.clear();
+
     // Loop through each task
     for (var task in tasks) {
       // Assuming 'assignedTo' is a list of usernames
@@ -128,9 +133,17 @@ class HomeProvider extends ChangeNotifier {
         }
       }
     }
+
+    // After processing all tasks, convert userTaskCount map to a list of maps
+    userTaskCount.forEach((user, count) {
+      userTaskCountList.add({user: count});
+    });
+
     notifyListeners();
+
     // Now you have a map of usernames and their assigned task counts
-    print(userTaskCount); // For debugging, or use it as needed in your app
+    print(userTaskCount); // For debugging
+    print(userTaskCountList); // Debug the list of maps
   }
 
   Future<void> setControllers(
@@ -146,27 +159,29 @@ class HomeProvider extends ChangeNotifier {
     assignedTo.text = assignedToUser;
     designer.text = task.designer;
 
-    getTaskIndexFromText(task.status);
-    getPriorityIndexFromText(task.priority);
+    selectedStatusIndex = getTaskIndexFromText(task.status);
+    selectedPriorityIndex = getPriorityIndexFromText(task.priority);
     notifyListeners();
   }
 
-  void getPriorityIndexFromText(String priority) {
+  int getPriorityIndexFromText(String priorityValue) {
     for (int index = 0; index < priorityValues.length; index++) {
       var priority = priorityValues[index];
-      if (priority['text'] == priority) {
-        selectedPriorityIndex = index;
+      if (priority["text"] == priorityValue) {
+        return index;
       }
     }
+    return 0;
   }
 
-  void getTaskIndexFromText(String status) {
+  int getTaskIndexFromText(String statusValue) {
     for (int index = 0; index < taskStatus.length; index++) {
       var status = taskStatus[index];
-      if (status['text'] == status) {
-        selectedStatusIndex = index;
+      if (status["text"] == statusValue) {
+        return index;
       }
     }
+    return -1;
   }
 
   String setDealNo() {

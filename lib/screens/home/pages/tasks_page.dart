@@ -2,7 +2,9 @@ import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
+import 'package:drape_shoppe_crm/screens/task/widgets/custom_task_icon_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class TasksPage extends StatefulWidget {
@@ -90,6 +92,14 @@ class _TasksPageState extends State<TasksPage> {
                         itemCount: tasks.length,
                         itemBuilder: (context, index) {
                           TaskModel task = tasks[index];
+                          int priorityIndex = HomeProvider.instance
+                              .getPriorityIndexFromText(task.priority);
+                          print(task.createdAt.toString());
+                          String formattedCreatedAtDate =
+                              DateFormat("dd MMM''yy").format(task.createdAt);
+                          String formattedDueDate =
+                              DateFormat("dd MMM''yy").format(task.dueDate);
+
                           return GestureDetector(
                             onTap: () {
                               Navigator.of(context).push(
@@ -102,13 +112,32 @@ class _TasksPageState extends State<TasksPage> {
                               );
                             },
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(task.dealNo),
-                                Text(task.createdBy),
-                                Text(task.title),
-                                SizedBox(height: 5),
-                                Divider()
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Icon(
+                                      Icons.done_rounded,
+                                      size: 18,
+                                    ),
+                                    CustomTaskIconWidget(
+                                      color: HomeProvider.instance
+                                              .priorityValues[priorityIndex]
+                                          ["color"],
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text(task.title),
+                                        Text(formattedCreatedAtDate),
+                                      ],
+                                    ),
+                                    Text(formattedDueDate),
+                                    SizedBox(height: 5),
+                                  ],
+                                ),
+                                Divider(),
                               ],
                             ),
                           );
