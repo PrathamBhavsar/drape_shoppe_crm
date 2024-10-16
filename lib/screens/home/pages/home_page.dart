@@ -3,6 +3,8 @@ import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../widgets/custom_table_widget.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -94,6 +96,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
+<<<<<<< Updated upstream
             ),
             const SizedBox(height: 20),
             const Text(
@@ -107,6 +110,26 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         )),
+=======
+              const SizedBox(height: 20),
+              const Text(
+                'Team Tasks',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
+              Card(
+                elevation: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: TableWidget(
+                    columnHeaders: ['Name', 'Incomplete Tasks'],
+                    rowData: HomeProvider.instance.userTaskCountList,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+>>>>>>> Stashed changes
       ),
     );
   }
@@ -124,6 +147,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+<<<<<<< Updated upstream
 class TableWidget extends StatelessWidget {
   const TableWidget({super.key});
 
@@ -229,6 +253,55 @@ class TableWidget extends StatelessWidget {
     );
   }
 }
+=======
+// class TableWidget extends StatelessWidget {
+//   TableWidget({super.key});
+//   Map<String, int> taskData = HomeProvider.instance.userTaskCount;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Table(
+//       border: TableBorder(
+//         horizontalInside: BorderSide(width: 1, color: Colors.grey),
+//       ),
+//       columnWidths: {
+//         0: FlexColumnWidth(1.5),
+//         1: FlexColumnWidth(1),
+//       },
+//       children: [
+//         TableRow(
+//           children: [
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text('Name',
+//                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+//             ),
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text('Incomplete Task',
+//                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+//             ),
+//           ],
+//         ),
+//         ...taskData.entries.map((task) {
+//           return TableRow(children: [
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text(task.key),
+//             ),
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Text(
+//                 task.value.toString(),
+//               ),
+//             ),
+//           ]);
+//         })
+//       ],
+//     );
+//   }
+// }
+>>>>>>> Stashed changes
 
 class CustomGridTile extends StatelessWidget {
   const CustomGridTile(

@@ -18,6 +18,13 @@ class _HomeScreenState extends State<HomeScreen> {
     const TasksPage(),
     const HomePage(),
   ];
+  @override
+  void initState() {
+    HomeProvider.instance.setAssignedTasks();
+    HomeProvider.instance.setIncompleteTasks();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HomeProvider.instance.setDealNo();
+<<<<<<< Updated upstream
           context.goNamed('addTask');
+=======
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddTaskScreen(
+                isNewTask: true,
+              ),
+            ),
+          );
+>>>>>>> Stashed changes
         },
         child: const Icon(
           Icons.add,
