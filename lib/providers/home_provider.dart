@@ -108,6 +108,18 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Map<String, int>> userTaskList = [];
+
+  Future<void> setTasks() async {
+    List<TaskModel> tasks =
+        await FirebaseController.instance.fetchIncompleteTasks();
+    userTaskList.clear();
+
+    for (var task in tasks) {
+      // userTaskList.add(task);
+    }
+  }
+
   Map<String, int> userTaskCount = {};
   List<Map<String, int>> userTaskCountList = [];
 

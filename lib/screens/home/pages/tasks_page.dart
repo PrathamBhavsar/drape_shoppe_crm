@@ -88,61 +88,103 @@ class _TasksPageState extends State<TasksPage> {
                         );
                       }
                       List<TaskModel> tasks = snapshot.data!;
-                      return ListView.builder(
-                        itemCount: tasks.length,
-                        itemBuilder: (context, index) {
-                          TaskModel task = tasks[index];
-                          int priorityIndex = HomeProvider.instance
-                              .getPriorityIndexFromText(task.priority);
-                          print(task.createdAt.toString());
-                          String formattedCreatedAtDate =
-                              DateFormat("dd MMM''yy").format(task.createdAt);
-                          String formattedDueDate =
-                              DateFormat("dd MMM''yy").format(task.dueDate);
-
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => AddTaskScreen(
-                                    dealNo: task.dealNo,
-                                    isNewTask: false,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Column(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Icon(
-                                      Icons.done_rounded,
-                                      size: 18,
-                                    ),
-                                    CustomTaskIconWidget(
-                                      color: HomeProvider.instance
-                                              .priorityValues[priorityIndex]
-                                          ["color"],
-                                    ),
-                                    Column(
-                                      children: [
-                                        Text(task.title),
-                                        Text(formattedCreatedAtDate),
-                                      ],
-                                    ),
-                                    Text(formattedDueDate),
-                                    SizedBox(height: 5),
-                                  ],
-                                ),
-                                Divider(),
-                              ],
-                            ),
-                          );
-                        },
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: IntrinsicWidth(
+                          child: TableWidget(
+                            columnHeaders: ['Task Name', 'Due Date', 'Status'],
+                            taskData: tasks,
+                          ),
+                        ),
                       );
+
+                      // return ListView.builder(
+                      //   itemCount: tasks.length,
+                      //   itemBuilder: (context, index) {
+                      //     TaskModel task = tasks[index];
+                      //     int priorityIndex = HomeProvider.instance
+                      //         .getPriorityIndexFromText(task.priority);
+                      //     int statusIndex = HomeProvider.instance
+                      //         .getTaskIndexFromText(task.status);
+                      //     String formattedCreatedAtDate =
+                      //         DateFormat("dd MMM''yy").format(task.createdAt);
+                      //     String formattedDueDate =
+                      //         DateFormat("dd MMM''yy").format(task.dueDate);
+                      //
+                      //     return GestureDetector(
+                      //       onTap: () {
+                      //         Navigator.of(context).push(
+                      //           MaterialPageRoute(
+                      //             builder: (context) => AddTaskScreen(
+                      //               dealNo: task.dealNo,
+                      //               isNewTask: false,
+                      //             ),
+                      //           ),
+                      //         );
+                      //       },
+                      //       child: Column(
+                      //         children: [
+                      //           Row(
+                      //             crossAxisAlignment: CrossAxisAlignment.center,
+                      //             mainAxisAlignment:
+                      //                 MainAxisAlignment.spaceAround,
+                      //             children: [
+                      //               CustomTaskIconWidget(
+                      //                 color: HomeProvider.instance
+                      //                         .priorityValues[priorityIndex]
+                      //                     ["color"],
+                      //               ),
+                      //               Column(
+                      //                 crossAxisAlignment:
+                      //                     CrossAxisAlignment.start,
+                      //                 children: [
+                      //                   Text(task.title),
+                      //                   Text(formattedCreatedAtDate),
+                      //                 ],
+                      //               ),
+                      //               Text(formattedDueDate),
+                      //               Container(
+                      //                 decoration: BoxDecoration(
+                      //                     borderRadius:
+                      //                         BorderRadius.circular(10),
+                      //                     color: HomeProvider.instance
+                      //                             .taskStatus[statusIndex]
+                      //                         ["secondaryColor"]),
+                      //                 child: Padding(
+                      //                   padding: const EdgeInsets.all(8.0),
+                      //                   child: Row(
+                      //                     children: [
+                      //                       CustomTaskIconWidget(
+                      //                         color: HomeProvider.instance
+                      //                                 .taskStatus[statusIndex]
+                      //                             ["primaryColor"],
+                      //                       ),
+                      //                       SizedBox(width: 10),
+                      //                       Text(
+                      //                         HomeProvider.instance
+                      //                                 .taskStatus[statusIndex]
+                      //                             ["text"],
+                      //                         style: TextStyle(
+                      //                             color:
+                      //                                 HomeProvider.instance
+                      //                                             .taskStatus[
+                      //                                         statusIndex]
+                      //                                     ["primaryColor"],
+                      //                             fontWeight: FontWeight.bold),
+                      //                       ),
+                      //                     ],
+                      //                   ),
+                      //                 ),
+                      //               )
+                      //             ],
+                      //           ),
+                      //           SizedBox(height: 5),
+                      //           Divider(),
+                      //         ],
+                      //       ),
+                      //     );
+                      //   },
+                      // );
                     }),
               )
             ],
@@ -238,6 +280,84 @@ class _TasksPageState extends State<TasksPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class TableWidget extends StatelessWidget {
+  TableWidget({super.key, required this.taskData, required this.columnHeaders});
+  final List<TaskModel> taskData;
+  final List<String> columnHeaders;
+
+  @override
+  Widget build(BuildContext context) {
+    return Table(
+      border: TableBorder(
+        horizontalInside: BorderSide(width: 1, color: Colors.grey),
+        // verticalInside: BorderSide(width: 1, color: Colors.grey),
+      ),
+      columnWidths: {
+        0: FlexColumnWidth(1.5),
+        1: FlexColumnWidth(1),
+      },
+      children: [
+        TableRow(
+            children: columnHeaders.map((header) {
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              header,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          );
+        }).toList()),
+        ...taskData.map((task) {
+          int priorityIndex =
+              HomeProvider.instance.getPriorityIndexFromText(task.priority);
+          int statusIndex =
+              HomeProvider.instance.getTaskIndexFromText(task.status);
+          return TableRow(children: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(task.createdBy),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                task.description,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: HomeProvider.instance.taskStatus[statusIndex]
+                        ["secondaryColor"]),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      CustomTaskIconWidget(
+                        color: HomeProvider.instance.taskStatus[statusIndex]
+                            ["primaryColor"],
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        HomeProvider.instance.taskStatus[statusIndex]["text"],
+                        style: TextStyle(
+                            color: HomeProvider.instance.taskStatus[statusIndex]
+                                ["primaryColor"],
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ]);
+        })
+      ],
     );
   }
 }

@@ -22,19 +22,25 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
+  void initState() {
+    HomeProvider.instance.setIncompleteTasks();
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          HomeProvider.instance.setIncompleteTasks();
-          // HomeProvider.instance.setDealNo();
-          // Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (context) => AddTaskScreen(
-          //       isNewTask: true,
-          //     ),
-          //   ),
-          // );
+          HomeProvider.instance.setDealNo();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddTaskScreen(
+                isNewTask: true,
+              ),
+            ),
+          );
         },
         child: const Icon(
           Icons.add,

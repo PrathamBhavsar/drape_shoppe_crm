@@ -162,9 +162,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                       CustomTaskIconWidget(
                                         color: item['color'],
                                       ),
-                                      const SizedBox(
-                                          width:
-                                              10), // Spacing between icon and text
+                                      const SizedBox(width: 10),
                                       Text(
                                         item['text'],
                                         style: TextStyle(fontSize: 16),
@@ -176,9 +174,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                            width:
-                                10), // Spacing between dropdown and text field
+                        const SizedBox(width: 10),
                         Expanded(
                           child: CustomTextFeild(
                             controller: titleController,
