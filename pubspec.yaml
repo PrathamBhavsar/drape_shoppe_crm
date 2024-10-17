@@ -43,8 +43,6 @@ dependencies:
   fluttertoast: ^8.2.8
   provider: ^6.1.2
   image_picker: ^1.1.2
-#  image_picker: ^1.1.2
-#  image_picker_android: ^0.8.12+15
   file_picker: ^8.1.2
   firebase_storage: ^12.3.3
   path_provider: ^2.1.4

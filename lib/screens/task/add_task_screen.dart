@@ -61,7 +61,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.exit_to_app_rounded),
+          icon: const Icon(Icons.close),
         ),
         title: Text(widget.isNewTask ? 'Add Task' : 'Edit Task'),
         centerTitle: false,
@@ -121,7 +121,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           child: Consumer<HomeProvider>(
             builder: (BuildContext context, provider, Widget? child) {
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Visibility(
+                    visible: !widget.isNewTask,
+                    child: Text(
+                      widget.dealNo ?? "",
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   Container(
                     height: 50,
                     child: Row(
@@ -176,7 +185,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: CustomTextFeild(
+                          child: CustomTextField(
                             controller: titleController,
                             focusNode: taskNameFocusNode,
                             hint: 'Task Name',
@@ -185,7 +194,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ],
                     ),
                   ),
-                  CustomTextFeild(
+                  CustomTextField(
                     controller: descController,
                     focusNode: descFocusNode,
                     hint: 'Description',
@@ -203,14 +212,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       );
                     },
                     child: Container(
-                      child: CustomTextFeild(
+                      child: CustomTextField(
                         controller: assignedtoController,
                         focusNode: assignedToFocusNode,
                         hint: 'Assigned to',
+                        isEnabled: false, // Enable autofill here
                       ),
                     ),
                   ),
-                  CustomTextFeild(
+                  CustomTextField(
                     controller: designerController,
                     focusNode: designerFocusNode,
                     hint: 'Designer',

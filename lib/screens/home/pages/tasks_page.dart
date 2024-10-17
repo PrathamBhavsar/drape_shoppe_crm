@@ -28,39 +28,6 @@ class _TasksPageState extends State<TasksPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(
-              Icons.menu_rounded,
-              size: 30,
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: () {
-                _buildUserModelSheet();
-              },
-              icon: const Icon(
-                Icons.people_outline_rounded,
-                size: 30,
-              ),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            const Icon(
-              Icons.notifications_none_rounded,
-              size: 30,
-            ),
-            Container(
-              height: 12,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadiusDirectional.circular(20)),
-            ),
-          ],
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
@@ -88,13 +55,12 @@ class _TasksPageState extends State<TasksPage> {
                         );
                       }
                       List<TaskModel> tasks = snapshot.data!;
+
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                        child: IntrinsicWidth(
-                          child: TableWidget(
-                            columnHeaders: ['Task Name', 'Due Date', 'Status'],
-                            taskData: tasks,
-                          ),
+                        child: TableWidget(
+                          columnHeaders: ['Task Name', 'Due Date', 'Status'],
+                          taskData: tasks,
                         ),
                       );
 
@@ -193,95 +159,6 @@ class _TasksPageState extends State<TasksPage> {
       ),
     );
   }
-
-  _buildUserModelSheet() {
-    final homeProvider = Provider.of<HomeProvider>(context);
-    return showModalBottomSheet(
-      showDragHandle: true,
-      elevation: 1.5,
-      isScrollControlled: true,
-      context: context,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.7,
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Users',
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                // Search Field
-                TextField(
-                  focusNode: searchFocusNode,
-                  controller: searchController,
-                  decoration: const InputDecoration(
-                    isDense: true,
-                    hintText: 'Search Here',
-                    prefixIcon: Icon(Icons.search_rounded),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // List of Users
-                Expanded(
-                  // Wrap ListView in Expanded to take remaining space
-                  child: homeProvider.userNames.isEmpty
-                      ? const Center(
-                          child:
-                              CircularProgressIndicator()) // Loading indicator
-                      : ListView.builder(
-                          itemCount: homeProvider.userNames.length,
-                          itemBuilder: (context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const SizedBox(
-                                      width: 12,
-                                    ),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                        color: Colors.red,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      height: 40,
-                                      width: 40,
-                                    ),
-                                    const SizedBox(
-                                      width: 12,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          homeProvider.userNames[index],
-                                          style: const TextStyle(fontSize: 18),
-                                        ),
-                                        const Text('Tasks: 10'),
-                                      ],
-                                    ),
-                                  ],
-                                ), // Display each user's name
-
-                                const Divider(), // Divider between each ListTile
-                              ],
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
 
 class TableWidget extends StatelessWidget {
@@ -291,73 +168,148 @@ class TableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Table(
-      border: TableBorder(
-        horizontalInside: BorderSide(width: 1, color: Colors.grey),
-        // verticalInside: BorderSide(width: 1, color: Colors.grey),
-      ),
-      columnWidths: {
-        0: FlexColumnWidth(1.5),
-        1: FlexColumnWidth(1),
-      },
-      children: [
-        TableRow(
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width),
+      child: Table(
+        border: TableBorder(
+          horizontalInside: BorderSide(width: 1, color: Colors.grey),
+        ),
+        columnWidths: {
+          // Use IntrinsicColumnWidth for dynamic column sizing
+          0: IntrinsicColumnWidth(),
+          1: IntrinsicColumnWidth(),
+          2: IntrinsicColumnWidth(),
+        },
+        children: [
+          // Column Headers
+          TableRow(
             children: columnHeaders.map((header) {
-          return Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              header,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-          );
-        }).toList()),
-        ...taskData.map((task) {
-          int priorityIndex =
-              HomeProvider.instance.getPriorityIndexFromText(task.priority);
-          int statusIndex =
-              HomeProvider.instance.getTaskIndexFromText(task.status);
-          return TableRow(children: [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(task.createdBy),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                task.description,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: HomeProvider.instance.taskStatus[statusIndex]
-                        ["secondaryColor"]),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      CustomTaskIconWidget(
-                        color: HomeProvider.instance.taskStatus[statusIndex]
-                            ["primaryColor"],
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  header,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+              );
+            }).toList(),
+          ),
+          // Table Data with entire row tappable
+          ...taskData.map((task) {
+            String formattedCreatedAtDate =
+                DateFormat("dd MMM''yy").format(task.createdAt);
+            String formattedDueDate =
+                DateFormat("dd MMM''yy").format(task.dueDate);
+            int priorityIndex =
+                HomeProvider.instance.getPriorityIndexFromText(task.priority);
+            int statusIndex =
+                HomeProvider.instance.getTaskIndexFromText(task.status);
+
+            // Wrap each cell in a GestureDetector to detect taps anywhere in the row
+            return TableRow(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AddTaskScreen(
+                          dealNo: task.dealNo,
+                          isNewTask: false,
+                        ),
                       ),
-                      SizedBox(width: 10),
-                      Text(
-                        HomeProvider.instance.taskStatus[statusIndex]["text"],
-                        style: TextStyle(
-                            color: HomeProvider.instance.taskStatus[statusIndex]
-                                ["primaryColor"],
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        CustomTaskIconWidget(
+                          color: HomeProvider
+                              .instance.priorityValues[priorityIndex]["color"],
+                        ),
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(task.title),
+                            Text(formattedCreatedAtDate),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ]);
-        })
-      ],
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AddTaskScreen(
+                          dealNo: task.dealNo,
+                          isNewTask: false,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      formattedDueDate,
+                      style: TextStyle(
+                        color: task.dueDate.isAfter(DateTime.now())
+                            ? Colors.lightGreen
+                            : Colors.red,
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AddTaskScreen(
+                          dealNo: task.dealNo,
+                          isNewTask: false,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: HomeProvider.instance.taskStatus[statusIndex]
+                            ["secondaryColor"],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CustomTaskIconWidget(
+                              color: HomeProvider.instance
+                                  .taskStatus[statusIndex]["primaryColor"],
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              HomeProvider.instance.taskStatus[statusIndex]
+                                  ["text"],
+                              style: TextStyle(
+                                color: HomeProvider.instance
+                                    .taskStatus[statusIndex]["primaryColor"],
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
+        ],
+      ),
     );
   }
 }

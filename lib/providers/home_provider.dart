@@ -84,6 +84,15 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<String> selectedUsers = [];
+
+  void addSelectedUsers(List<String> users) {
+    selectedUsers.clear();
+    selectedUsers.addAll(users);
+    print(selectedUsers);
+    notifyListeners();
+  }
+
   int assignedTasks = 0;
   int dueTodayTasks = 0;
   int pastDueTasks = 0;

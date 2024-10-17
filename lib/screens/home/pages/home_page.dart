@@ -23,39 +23,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Icon(
-              Icons.menu_rounded,
-              size: 30,
-            ),
-            const Spacer(),
-            IconButton(
-              onPressed: () {
-                _buildUserModelSheet();
-              },
-              icon: const Icon(
-                Icons.people_outline_rounded,
-                size: 30,
-              ),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            const Icon(
-              Icons.notifications_none_rounded,
-              size: 30,
-            ),
-            Container(
-              height: 12,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadiusDirectional.circular(20)),
-            ),
-          ],
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(

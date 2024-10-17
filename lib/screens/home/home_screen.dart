@@ -1,10 +1,9 @@
-import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
+import 'package:drape_shoppe_crm/screens/home/widgets/custom_app_bar_widget.dart';
 import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,20 +16,24 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<String> userNames = [];
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    const HomePage(),
     const TasksPage(),
+    const HomePage(),
   ];
 
   @override
   void initState() {
     HomeProvider.instance.setIncompleteTasks();
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: CustomAppBarWidget(
+          context: context,
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HomeProvider.instance.setDealNo();
