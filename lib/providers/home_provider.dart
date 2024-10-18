@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/models/task.dart';
+import 'package:drape_shoppe_crm/models/user.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
@@ -86,14 +88,17 @@ class HomeProvider extends ChangeNotifier {
 
   List<String> selectedUsers = [];
 
-  void addSelectedUsers(List<String> users) {
+  void addSelectedUsers(
+      List<String> users, TextEditingController assignedToController) {
     selectedUsers.clear();
     selectedUsers.addAll(users);
     print(selectedUsers);
+    assignedToController.text = selectedUsers.join(", ");
     notifyListeners();
   }
 
   int assignedTasks = 0;
+  int totalTasks = 0;
   int dueTodayTasks = 0;
   int pastDueTasks = 0;
 
@@ -105,6 +110,7 @@ class HomeProvider extends ChangeNotifier {
     DateTime dateOnly = DateTime(timestamp.toDate().year,
         timestamp.toDate().month, timestamp.toDate().day);
 
+    totalTasks = await FirebaseController.instance.fetchAllTasks();
     assignedTasks = taskList.length;
     for (var task in taskList) {
       if (task.dueDate == dateOnly) {
@@ -167,12 +173,20 @@ class HomeProvider extends ChangeNotifier {
     print(userTaskCountList); // Debug the list of maps
   }
 
+  UserModel? currentUser;
+
+  Future<void> getCurrentUser() async {
+    currentUser = await FirebaseController.instance.currentUserModel();
+    notifyListeners();
+  }
+
   Future<void> setControllers(
-      String dealNo,
-      TextEditingController title,
-      TextEditingController desc,
-      TextEditingController assignedTo,
-      TextEditingController designer) async {
+    String dealNo,
+    TextEditingController title,
+    TextEditingController desc,
+    TextEditingController assignedTo,
+    TextEditingController designer,
+  ) async {
     TaskModel task = await FirebaseController.instance.getTask(dealNo);
     title.text = task.title;
     desc.text = task.description;

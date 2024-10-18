@@ -12,10 +12,13 @@ class CustomAppBarWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Icon(
-          Icons.menu_rounded,
-          size: 30,
-        ),
+        // IconButton(
+        //   onPressed: () {},
+        //   icon: const Icon(
+        //     Icons.menu_rounded,
+        //     size: 30,
+        //   ),
+        // ),
         const Spacer(),
         IconButton(
           onPressed: () {

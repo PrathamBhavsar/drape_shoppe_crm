@@ -35,6 +35,11 @@ class FirebaseController {
   //   return tasks;
   // }
 
+  Future<int> fetchAllTasks() async {
+    final snapshot = await _firestore.collection('tasks').get();
+    return snapshot.size;
+  }
+
   Future<List<TaskModel>> fetchIncompleteTasks() async {
     List<TaskModel> incompleteTasks = [];
     final querySnapshot = await _firestore
@@ -53,11 +58,25 @@ class FirebaseController {
     return incompleteTasks;
   }
 
+  Future<UserModel> currentUserModel() async {
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.email)
+        .get();
+
+    return UserModel.fromJson(snapshot.data()!);
+  }
+
   Future<List<TaskModel>> fetchTasksList() async {
     List<TaskModel> tasks = [];
+    UserModel currentUser =
+        await FirebaseController.instance.currentUserModel();
+    String currentUserName = currentUser.userName;
     await _firestore
         .collection('tasks')
-        .where("progress", isEqualTo: 100)
+        .where("assigned_to",
+            arrayContains:
+                currentUserName) // Check if assignedTo contains the current user
         .get()
         .then((snapshot) {
       for (var docSnapshot in snapshot.docs) {

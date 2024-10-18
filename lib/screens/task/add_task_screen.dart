@@ -207,16 +207,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         isScrollControlled: true,
                         context: context,
                         builder: (context) {
-                          return UserModalWidget();
+                          return UserModalWidget(
+                            assignedToController: assignedtoController,
+                          );
                         },
                       );
                     },
                     child: Container(
-                      child: CustomTextField(
-                        controller: assignedtoController,
-                        focusNode: assignedToFocusNode,
-                        hint: 'Assigned to',
-                        isEnabled: false, // Enable autofill here
+                      child: Consumer(
+                        builder: (BuildContext context, value, Widget? child) {
+                          return CustomTextField(
+                            controller: assignedtoController,
+                            focusNode: assignedToFocusNode,
+                            hint: 'Assigned to',
+                            isEnabled: false,
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -309,7 +315,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       designerController.text,
       100,
       HomeProvider.instance.selectedStatus,
-      ['test'],
+      HomeProvider.instance.selectedUsers,
       HomeProvider.instance.pickedFile,
     );
   }
@@ -323,7 +329,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       designerController.text,
       100,
       HomeProvider.instance.selectedStatus,
-      ['test'],
+      HomeProvider.instance.selectedUsers.isEmpty
+          ? assignedtoController.text.split(',').map((e) => e.trim()).toList()
+          : HomeProvider.instance.selectedUsers,
       HomeProvider.instance.pickedFile,
     );
   }

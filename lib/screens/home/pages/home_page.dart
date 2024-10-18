@@ -16,91 +16,90 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    Provider.of<HomeProvider>(context, listen: false).getUsers();
+    // Provider.of<HomeProvider>(context, listen: false).getUsers();
+    HomeProvider.instance.getUsers();
+    HomeProvider.instance.setAssignedTasks();
+    HomeProvider.instance.setIncompleteTasks();
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Overall Summary',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              Container(
-                child: Consumer<HomeProvider>(
-                  builder: (BuildContext context, provider, Widget? child) {
-                    return GridView(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 2 / 1,
-                      ),
-                      children: [
-                        const CustomGridTile(
-                          color: Colors.blue,
-                          headTxt: 'Total Task',
-                          amount: '9',
-                        ),
-                        CustomGridTile(
-                          color: Colors.orange,
-                          headTxt: 'Assigned',
-                          amount: provider.assignedTasks.toString(),
-                        ),
-                        CustomGridTile(
-                          color: Colors.redAccent,
-                          headTxt: 'Due Today',
-                          amount: provider.dueTodayTasks.toString(),
-                        ),
-                        CustomGridTile(
-                          color: Colors.lightGreen,
-                          headTxt: 'Past Due',
-                          amount: provider.dueTodayTasks.toString(),
-                        ),
-                      ],
-                    );
-                  },
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await HomeProvider.instance.getUsers();
+          await HomeProvider.instance.setIncompleteTasks();
+          await HomeProvider.instance.setAssignedTasks();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Overall Summary',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Team Tasks',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              Card(
-                elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: TableWidget(
-                    columnHeaders: ['Name', 'Incomplete Tasks'],
-                    rowData: HomeProvider.instance.userTaskCountList,
+                Container(
+                  child: Consumer<HomeProvider>(
+                    builder: (BuildContext context, provider, Widget? child) {
+                      return GridView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 2 / 1,
+                        ),
+                        children: [
+                          const CustomGridTile(
+                            color: Colors.blue,
+                            headTxt: 'Total Task',
+                            amount: '9',
+                          ),
+                          CustomGridTile(
+                            color: Colors.orange,
+                            headTxt: 'Assigned',
+                            amount: provider.assignedTasks.toString(),
+                          ),
+                          CustomGridTile(
+                            color: Colors.redAccent,
+                            headTxt: 'Due Today',
+                            amount: provider.dueTodayTasks.toString(),
+                          ),
+                          CustomGridTile(
+                            color: Colors.lightGreen,
+                            headTxt: 'Past Due',
+                            amount: provider.dueTodayTasks.toString(),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                const Text(
+                  'Team Tasks',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+                Card(
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: TableWidget(
+                      columnHeaders: ['Name', 'Incomplete Tasks'],
+                      rowData: HomeProvider.instance.userTaskCountList,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  _buildUserModelSheet() {
-    return showModalBottomSheet(
-      showDragHandle: true,
-      elevation: 1.5,
-      isScrollControlled: true,
-      context: context,
-      builder: (context) {
-        return UserModalWidget();
-      },
     );
   }
 }

@@ -20,7 +20,8 @@ class _TasksPageState extends State<TasksPage> {
 
   @override
   void initState() {
-    Provider.of<HomeProvider>(context, listen: false).getUsers();
+    // Provider.of<HomeProvider>(context, listen: false).getUsers();
+    HomeProvider.instance.getUsers();
     FirebaseController.instance.fetchTasksList();
     super.initState();
   }
@@ -28,132 +29,139 @@ class _TasksPageState extends State<TasksPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Your Tasks',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                height: 400,
-                child: FutureBuilder<List<TaskModel>>(
-                    future: FirebaseController.instance.fetchTasksList(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text(snapshot.error.toString()),
-                        );
-                      }
-                      List<TaskModel> tasks = snapshot.data!;
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await HomeProvider.instance.getUsers();
+          await FirebaseController.instance.fetchTasksList();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Your Tasks',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  height: 400,
+                  child: FutureBuilder<List<TaskModel>>(
+                      future: FirebaseController.instance.fetchTasksList(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text(snapshot.error.toString()),
+                          );
+                        }
+                        List<TaskModel> tasks = snapshot.data!;
 
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: TableWidget(
-                          columnHeaders: ['Task Name', 'Due Date', 'Status'],
-                          taskData: tasks,
-                        ),
-                      );
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: TableWidget(
+                            columnHeaders: ['Task Name', 'Due Date', 'Status'],
+                            taskData: tasks,
+                          ),
+                        );
 
-                      // return ListView.builder(
-                      //   itemCount: tasks.length,
-                      //   itemBuilder: (context, index) {
-                      //     TaskModel task = tasks[index];
-                      //     int priorityIndex = HomeProvider.instance
-                      //         .getPriorityIndexFromText(task.priority);
-                      //     int statusIndex = HomeProvider.instance
-                      //         .getTaskIndexFromText(task.status);
-                      //     String formattedCreatedAtDate =
-                      //         DateFormat("dd MMM''yy").format(task.createdAt);
-                      //     String formattedDueDate =
-                      //         DateFormat("dd MMM''yy").format(task.dueDate);
-                      //
-                      //     return GestureDetector(
-                      //       onTap: () {
-                      //         Navigator.of(context).push(
-                      //           MaterialPageRoute(
-                      //             builder: (context) => AddTaskScreen(
-                      //               dealNo: task.dealNo,
-                      //               isNewTask: false,
-                      //             ),
-                      //           ),
-                      //         );
-                      //       },
-                      //       child: Column(
-                      //         children: [
-                      //           Row(
-                      //             crossAxisAlignment: CrossAxisAlignment.center,
-                      //             mainAxisAlignment:
-                      //                 MainAxisAlignment.spaceAround,
-                      //             children: [
-                      //               CustomTaskIconWidget(
-                      //                 color: HomeProvider.instance
-                      //                         .priorityValues[priorityIndex]
-                      //                     ["color"],
-                      //               ),
-                      //               Column(
-                      //                 crossAxisAlignment:
-                      //                     CrossAxisAlignment.start,
-                      //                 children: [
-                      //                   Text(task.title),
-                      //                   Text(formattedCreatedAtDate),
-                      //                 ],
-                      //               ),
-                      //               Text(formattedDueDate),
-                      //               Container(
-                      //                 decoration: BoxDecoration(
-                      //                     borderRadius:
-                      //                         BorderRadius.circular(10),
-                      //                     color: HomeProvider.instance
-                      //                             .taskStatus[statusIndex]
-                      //                         ["secondaryColor"]),
-                      //                 child: Padding(
-                      //                   padding: const EdgeInsets.all(8.0),
-                      //                   child: Row(
-                      //                     children: [
-                      //                       CustomTaskIconWidget(
-                      //                         color: HomeProvider.instance
-                      //                                 .taskStatus[statusIndex]
-                      //                             ["primaryColor"],
-                      //                       ),
-                      //                       SizedBox(width: 10),
-                      //                       Text(
-                      //                         HomeProvider.instance
-                      //                                 .taskStatus[statusIndex]
-                      //                             ["text"],
-                      //                         style: TextStyle(
-                      //                             color:
-                      //                                 HomeProvider.instance
-                      //                                             .taskStatus[
-                      //                                         statusIndex]
-                      //                                     ["primaryColor"],
-                      //                             fontWeight: FontWeight.bold),
-                      //                       ),
-                      //                     ],
-                      //                   ),
-                      //                 ),
-                      //               )
-                      //             ],
-                      //           ),
-                      //           SizedBox(height: 5),
-                      //           Divider(),
-                      //         ],
-                      //       ),
-                      //     );
-                      //   },
-                      // );
-                    }),
-              )
-            ],
+                        // return ListView.builder(
+                        //   itemCount: tasks.length,
+                        //   itemBuilder: (context, index) {
+                        //     TaskModel task = tasks[index];
+                        //     int priorityIndex = HomeProvider.instance
+                        //         .getPriorityIndexFromText(task.priority);
+                        //     int statusIndex = HomeProvider.instance
+                        //         .getTaskIndexFromText(task.status);
+                        //     String formattedCreatedAtDate =
+                        //         DateFormat("dd MMM''yy").format(task.createdAt);
+                        //     String formattedDueDate =
+                        //         DateFormat("dd MMM''yy").format(task.dueDate);
+                        //
+                        //     return GestureDetector(
+                        //       onTap: () {
+                        //         Navigator.of(context).push(
+                        //           MaterialPageRoute(
+                        //             builder: (context) => AddTaskScreen(
+                        //               dealNo: task.dealNo,
+                        //               isNewTask: false,
+                        //             ),
+                        //           ),
+                        //         );
+                        //       },
+                        //       child: Column(
+                        //         children: [
+                        //           Row(
+                        //             crossAxisAlignment: CrossAxisAlignment.center,
+                        //             mainAxisAlignment:
+                        //                 MainAxisAlignment.spaceAround,
+                        //             children: [
+                        //               CustomTaskIconWidget(
+                        //                 color: HomeProvider.instance
+                        //                         .priorityValues[priorityIndex]
+                        //                     ["color"],
+                        //               ),
+                        //               Column(
+                        //                 crossAxisAlignment:
+                        //                     CrossAxisAlignment.start,
+                        //                 children: [
+                        //                   Text(task.title),
+                        //                   Text(formattedCreatedAtDate),
+                        //                 ],
+                        //               ),
+                        //               Text(formattedDueDate),
+                        //               Container(
+                        //                 decoration: BoxDecoration(
+                        //                     borderRadius:
+                        //                         BorderRadius.circular(10),
+                        //                     color: HomeProvider.instance
+                        //                             .taskStatus[statusIndex]
+                        //                         ["secondaryColor"]),
+                        //                 child: Padding(
+                        //                   padding: const EdgeInsets.all(8.0),
+                        //                   child: Row(
+                        //                     children: [
+                        //                       CustomTaskIconWidget(
+                        //                         color: HomeProvider.instance
+                        //                                 .taskStatus[statusIndex]
+                        //                             ["primaryColor"],
+                        //                       ),
+                        //                       SizedBox(width: 10),
+                        //                       Text(
+                        //                         HomeProvider.instance
+                        //                                 .taskStatus[statusIndex]
+                        //                             ["text"],
+                        //                         style: TextStyle(
+                        //                             color:
+                        //                                 HomeProvider.instance
+                        //                                             .taskStatus[
+                        //                                         statusIndex]
+                        //                                     ["primaryColor"],
+                        //                             fontWeight: FontWeight.bold),
+                        //                       ),
+                        //                     ],
+                        //                   ),
+                        //                 ),
+                        //               )
+                        //             ],
+                        //           ),
+                        //           SizedBox(height: 5),
+                        //           Divider(),
+                        //         ],
+                        //       ),
+                        //     );
+                        //   },
+                        // );
+                      }),
+                )
+              ],
+            ),
           ),
         ),
       ),

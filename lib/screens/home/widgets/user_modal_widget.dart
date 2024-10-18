@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class UserModalWidget extends StatefulWidget {
-  const UserModalWidget({super.key});
-
+  const UserModalWidget({super.key, required this.assignedToController});
+final TextEditingController assignedToController;
   @override
   State<UserModalWidget> createState() => _UserModalWidgetState();
 }
@@ -35,7 +35,8 @@ class _UserModalWidgetState extends State<UserModalWidget> {
                 TextButton(
                   onPressed: () {
                     // Update the HomeProvider with the selected users
-                    homeProvider.addSelectedUsers(selectedUsers);
+                    homeProvider.addSelectedUsers(selectedUsers, widget.assignedToController);
+
                     Navigator.of(context).pop(); // Close the modal
                   },
                   child: Text(
