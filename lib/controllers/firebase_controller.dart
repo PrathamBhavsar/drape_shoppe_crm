@@ -21,18 +21,76 @@ class FirebaseController {
       FirebaseController._privateConstructor();
   FirebaseController._privateConstructor();
 
-  Future<Map<String, dynamic>> fetchTasksList() async {
-    Map<String, dynamic> tasks = {};
+  // Future<Map<String, dynamic>> fetchTasksList() async {
+  //   Map<String, dynamic> tasks = {};
+  //   await _firestore
+  //       .collection('tasks')
+  //       .where("progress", isEqualTo: 100)
+  //       .get()
+  //       .then((snapshot) {
+  //     for (var docSnapshot in snapshot.docs) {
+  //       tasks.addAll(docSnapshot.data());
+  //     }
+  //   });
+  //   return tasks;
+  // }
+
+  Future<int> fetchAllTasks() async {
+    final snapshot = await _firestore.collection('tasks').get();
+    return snapshot.size;
+  }
+
+  Future<List<TaskModel>> fetchIncompleteTasks() async {
+    List<TaskModel> incompleteTasks = [];
+    final querySnapshot = await _firestore
+        .collection('tasks')
+        .where("status", isNotEqualTo: "Closed - lost")
+        .get();
+
+    final filteredDocs = querySnapshot.docs
+        .where((doc) => doc["status"] != "Closed - won")
+        .toList();
+
+    for (var docSnapshot in filteredDocs) {
+      incompleteTasks.add(TaskModel.fromJson(docSnapshot.data()));
+    }
+
+    return incompleteTasks;
+  }
+
+  Future<UserModel> currentUserModel() async {
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.email)
+        .get();
+
+    return UserModel.fromJson(snapshot.data()!);
+  }
+
+  Future<List<TaskModel>> fetchTasksList() async {
+    List<TaskModel> tasks = [];
+    UserModel currentUser =
+        await FirebaseController.instance.currentUserModel();
+    String currentUserName = currentUser.userName;
     await _firestore
         .collection('tasks')
-        .where("progress", isEqualTo: 100)
+        .where("assigned_to",
+            arrayContains:
+                currentUserName) // Check if assignedTo contains the current user
         .get()
         .then((snapshot) {
       for (var docSnapshot in snapshot.docs) {
-        tasks.addAll(docSnapshot.data());
+        tasks.add(TaskModel.fromJson(docSnapshot.data()));
       }
     });
     return tasks;
+  }
+
+  Future<TaskModel> getTask(String dealNo) async {
+    DocumentSnapshot<Map<String, dynamic>> snapshot =
+        await _firestore.collection('tasks').doc(dealNo).get();
+    TaskModel task = TaskModel.fromJson(snapshot.data()!);
+    return task;
   }
 
   Future<CommentModel> addComment() async {
@@ -64,6 +122,49 @@ class FirebaseController {
       List<String> fileDir) async {
     DateTime now = HomeProvider.instance.now;
     String dealNo = HomeProvider.instance.dealNo;
+    String? createdBy = _auth.currentUser!.email;
+
+    // Upload attachments and get their URLs
+    List<String> attachmentUrls = await storeAttachments(dealNo, fileDir);
+    CommentModel comment = CommentModel(
+        user: createdBy!,
+        createdAt: now,
+        comment: HomeProvider.instance.comment);
+    // Log to ensure URLs are collected
+    print(attachmentUrls);
+
+    // Create the task model
+    TaskModel task = TaskModel(
+      dealNo: dealNo,
+      createdAt: now,
+      createdBy: createdBy,
+      assignedTo: assignedTo,
+      priority: priority,
+      title: title,
+      description: description,
+      dueDate: now,
+      designer: designer,
+      comments: {dealNo: comment},
+      status: status,
+      progress: progress,
+      attachments: attachmentUrls,
+    );
+
+    // Store the task in Firestore
+    await _firestore.collection('tasks').doc(dealNo).set(task.toJson());
+  }
+
+  Future<void> editTask(
+      String dealNo,
+      String priority,
+      String title,
+      String description,
+      String designer,
+      int progress,
+      String status,
+      List<String> assignedTo,
+      List<String> fileDir) async {
+    DateTime now = HomeProvider.instance.now;
     String? createdBy = _auth.currentUser!.email;
 
     // Upload attachments and get their URLs

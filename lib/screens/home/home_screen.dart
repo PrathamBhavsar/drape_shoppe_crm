@@ -1,8 +1,11 @@
+import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
+import 'package:drape_shoppe_crm/screens/home/widgets/custom_app_bar_widget.dart';
+import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,26 +18,30 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<String> userNames = [];
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    const TasksPage(),
     const HomePage(),
+    const TasksPage(),
   ];
-  @override
-  void initState() {
-    HomeProvider.instance.setAssignedTasks();
-    HomeProvider.instance.setIncompleteTasks();
 
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   HomeProvider.instance.setIncompleteTasks();
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: CustomAppBarWidget(
+          context: context,
+        ),
+      ),
+      // drawer: Drawer(
+      //   child: Center(child: Text(FirebaseAuth.instance.currentUser!.email!)),
+      // ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           HomeProvider.instance.setDealNo();
-<<<<<<< Updated upstream
-          context.goNamed('addTask');
-=======
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => AddTaskScreen(
@@ -42,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           );
->>>>>>> Stashed changes
         },
         child: const Icon(
           Icons.add,

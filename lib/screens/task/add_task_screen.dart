@@ -1,7 +1,7 @@
 import 'package:drape_shoppe_crm/constants/app_constants.dart';
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
+import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
-import 'package:drape_shoppe_crm/router/routes.dart';
 import 'package:drape_shoppe_crm/screens/task/comments_screen.dart';
 import 'package:drape_shoppe_crm/screens/task/widgets/custom_text_feild.dart';
 import 'package:drape_shoppe_crm/screens/task/widgets/task_modal_widgets.dart';
@@ -9,20 +9,21 @@ import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 import 'widgets/custom_task_icon_widget.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+  const AddTaskScreen({super.key, required this.isNewTask, this.dealNo});
+  final String? dealNo;
+  final bool isNewTask;
 
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
-  // Define priority values with text and color
-
   TextEditingController descController = TextEditingController();
   TextEditingController titleController = TextEditingController();
   TextEditingController assignedtoController = TextEditingController();
@@ -35,8 +36,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    descController.dispose();
+    titleController.dispose();
+    assignedtoController.dispose();
+    designerController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    if (!widget.isNewTask) {
+      HomeProvider.instance.setControllers(widget.dealNo!, titleController,
+          descController, assignedtoController, designerController);
+    }
+    super.initState();
   }
 
   @override
@@ -48,9 +61,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.exit_to_app_rounded),
+          icon: const Icon(Icons.close),
         ),
-        title: const Text('Add Task'),
+        title: Text(widget.isNewTask ? 'Add Task' : 'Edit Task'),
         centerTitle: false,
         actions: [
           GestureDetector(
@@ -85,7 +98,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           ),
                           SizedBox(width: 10),
                           Text(
-                            provider.selectedStatus,
+                            provider.taskStatus[provider.selectedStatusIndex]
+                                ["text"],
                             style: TextStyle(
                                 color: provider.taskStatus[provider
                                     .selectedStatusIndex]["primaryColor"],
@@ -104,19 +118,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(18.0),
-          child: Column(
-            children: [
-              Container(
-                height: 50,
-                child: Row(
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 100,
-                      child: Consumer<HomeProvider>(
-                        builder:
-                            (BuildContext context, provider, Widget? child) {
-                          return DropdownButtonHideUnderline(
+          child: Consumer<HomeProvider>(
+            builder: (BuildContext context, provider, Widget? child) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Visibility(
+                    visible: !widget.isNewTask,
+                    child: Text(
+                      widget.dealNo ?? "",
+                      style:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Container(
+                    height: 50,
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 40,
+                          width: 100,
+                          child: DropdownButtonHideUnderline(
                             child: DropdownButton(
                               value: provider.selectedPriorityIndex,
                               hint: Row(
@@ -149,9 +171,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                       CustomTaskIconWidget(
                                         color: item['color'],
                                       ),
-                                      const SizedBox(
-                                          width:
-                                              10), // Spacing between icon and text
+                                      const SizedBox(width: 10),
                                       Text(
                                         item['text'],
                                         style: TextStyle(fontSize: 16),
@@ -161,53 +181,59 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 );
                               }),
                             ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: CustomTextField(
+                            controller: titleController,
+                            focusNode: taskNameFocusNode,
+                            hint: 'Task Name',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  CustomTextField(
+                    controller: descController,
+                    focusNode: descFocusNode,
+                    hint: 'Description',
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        showDragHandle: true,
+                        elevation: 1.5,
+                        isScrollControlled: true,
+                        context: context,
+                        builder: (context) {
+                          return UserModalWidget(
+                            assignedToController: assignedtoController,
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
+                      child: Consumer(
+                        builder: (BuildContext context, value, Widget? child) {
+                          return CustomTextField(
+                            controller: assignedtoController,
+                            focusNode: assignedToFocusNode,
+                            hint: 'Assigned to',
+                            isEnabled: false,
                           );
                         },
                       ),
                     ),
-                    const SizedBox(
-                        width: 10), // Spacing between dropdown and text field
-                    Expanded(
-                      child: CustomTextFeild(
-                        controller: titleController,
-                        focusNode: taskNameFocusNode,
-                        hint: 'Task Name',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              CustomTextFeild(
-                controller: descController,
-                focusNode: descFocusNode,
-                hint: 'Description',
-              ),
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    showDragHandle: true,
-                    elevation: 1.5,
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (context) {
-                      return UserModalWidget();
-                    },
-                  );
-                },
-                child: Container(
-                  child: CustomTextFeild(
-                    controller: assignedtoController,
-                    focusNode: assignedToFocusNode,
-                    hint: 'Assigned to',
                   ),
-                ),
-              ),
-              CustomTextFeild(
-                controller: designerController,
-                focusNode: designerFocusNode,
-                hint: 'Designer',
-              ),
-            ],
+                  CustomTextField(
+                    controller: designerController,
+                    focusNode: designerFocusNode,
+                    hint: 'Designer',
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -255,19 +281,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                FirebaseController.instance.setTask(
-                  HomeProvider.instance.selectedPriority,
-                  titleController.text,
-                  descController.text,
-                  designerController.text,
-                  100,
-                  HomeProvider.instance.selectedStatus,
-                  ['test'],
-                  HomeProvider.instance.pickedFile,
-                );
-                // context.goNamed('home');
+                widget.isNewTask ? createTask() : editTask();
+                context.goNamed('home');
                 Fluttertoast.showToast(
-                  msg: "Task Created!",
+                  msg: widget.isNewTask ? "Task Created!" : "Task Edited!",
                 );
               },
               style: ButtonStyle(
@@ -280,13 +297,42 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 padding: WidgetStateProperty.all(AppConstants.appPadding),
               ),
               child: Text(
-                'Create Task',
+                widget.isNewTask ? 'Create Task' : 'Edit Task',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void createTask() {
+    FirebaseController.instance.setTask(
+      HomeProvider.instance.selectedPriority,
+      titleController.text,
+      descController.text,
+      designerController.text,
+      100,
+      HomeProvider.instance.selectedStatus,
+      HomeProvider.instance.selectedUsers,
+      HomeProvider.instance.pickedFile,
+    );
+  }
+
+  void editTask() {
+    FirebaseController.instance.editTask(
+      widget.dealNo!,
+      HomeProvider.instance.selectedPriority,
+      titleController.text,
+      descController.text,
+      designerController.text,
+      100,
+      HomeProvider.instance.selectedStatus,
+      HomeProvider.instance.selectedUsers.isEmpty
+          ? assignedtoController.text.split(',').map((e) => e.trim()).toList()
+          : HomeProvider.instance.selectedUsers,
+      HomeProvider.instance.pickedFile,
     );
   }
 }

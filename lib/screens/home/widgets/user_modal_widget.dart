@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class UserModalWidget extends StatefulWidget {
-  const UserModalWidget({super.key});
-
+  const UserModalWidget({super.key, required this.assignedToController});
+final TextEditingController assignedToController;
   @override
   State<UserModalWidget> createState() => _UserModalWidgetState();
 }
@@ -12,6 +12,8 @@ class UserModalWidget extends StatefulWidget {
 class _UserModalWidgetState extends State<UserModalWidget> {
   final FocusNode searchFocusNode = FocusNode();
   final TextEditingController searchController = TextEditingController();
+  final List<String> selectedUsers = []; // List to track selected users
+
   @override
   Widget build(BuildContext context) {
     final homeProvider = Provider.of<HomeProvider>(context);
@@ -23,9 +25,30 @@ class _UserModalWidgetState extends State<UserModalWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Users',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Text(
+                  'Users',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(), // Push the button to the right
+                TextButton(
+                  onPressed: () {
+                    // Update the HomeProvider with the selected users
+                    homeProvider.addSelectedUsers(selectedUsers, widget.assignedToController);
+
+                    Navigator.of(context).pop(); // Close the modal
+                  },
+                  child: Text(
+                    'Done',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
             // Search Field
@@ -46,40 +69,58 @@ class _UserModalWidgetState extends State<UserModalWidget> {
                   : ListView.builder(
                       itemCount: homeProvider.userNames.length,
                       itemBuilder: (context, index) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const SizedBox(
-                                  width: 12,
-                                ),
-                                Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  height: 40,
-                                  width: 40,
-                                ),
-                                const SizedBox(
-                                  width: 12,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      homeProvider.userNames[index],
-                                      style: const TextStyle(fontSize: 18),
-                                    ),
-                                    const Text('Tasks: 10'),
-                                  ],
-                                ),
-                              ],
-                            ), // Display each user's name
+                        String userName = homeProvider.userNames[index];
+                        bool isSelected = selectedUsers.contains(userName);
 
-                            const Divider(), // Divider between each ListTile
-                          ],
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isSelected) {
+                                selectedUsers.remove(userName); // Deselect
+                              } else {
+                                selectedUsers.add(userName); // Select
+                              }
+                            });
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const SizedBox(width: 12),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? Colors.lightGreen
+                                          : Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    height: 40,
+                                    width: 40,
+                                    child: isSelected
+                                        ? const Icon(
+                                            Icons.done_rounded,
+                                            color: Colors.white,
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        userName,
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                      const Text('Tasks: 10'),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const Divider(), // Divider between each ListTile
+                            ],
+                          ),
                         );
                       },
                     ),
