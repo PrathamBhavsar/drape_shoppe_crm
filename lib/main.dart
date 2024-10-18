@@ -1,5 +1,6 @@
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/router/routes.dart';
+import 'package:drape_shoppe_crm/screens/home/tab_screen.dart';
 import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:drape_shoppe_crm/screens/task/comments_screen.dart';
 import 'package:flutter/material.dart';
@@ -32,11 +33,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp(
-    //   home: AddTaskScreen(),
-    // );
-    return MaterialApp.router(
-      routerConfig: MyRouter.router(isLoggedIn),
+    return MaterialApp(
+      home: TaskTabScreen(
+        isNewTask: false,
+        dealNo: '20241018124429',
+      ),
     );
+    // return MaterialApp.router(
+    //   routerConfig: MyRouter.router(isLoggedIn),
+    // );
   }
 }

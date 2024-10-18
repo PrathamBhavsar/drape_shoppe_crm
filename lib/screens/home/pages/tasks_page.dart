@@ -1,6 +1,7 @@
 import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/models/task.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
+import 'package:drape_shoppe_crm/screens/home/tab_screen.dart';
 import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:drape_shoppe_crm/screens/task/widgets/custom_task_icon_widget.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,11 @@ class _TasksPageState extends State<TasksPage> {
                         if (snapshot.hasError) {
                           return Center(
                             child: Text(snapshot.error.toString()),
+                          );
+                        }
+                        if (snapshot.data!.isEmpty) {
+                          return Center(
+                            child: Text('No assigned tasks yet'),
                           );
                         }
                         List<TaskModel> tasks = snapshot.data!;
@@ -219,10 +225,8 @@ class TableWidget extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => AddTaskScreen(
-                          dealNo: task.dealNo,
-                          isNewTask: false,
-                        ),
+                        builder: (context) => TaskTabScreen(
+                            isNewTask: false, dealNo: task.dealNo),
                       ),
                     );
                   },
@@ -250,10 +254,8 @@ class TableWidget extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => AddTaskScreen(
-                          dealNo: task.dealNo,
-                          isNewTask: false,
-                        ),
+                        builder: (context) => TaskTabScreen(
+                            isNewTask: false, dealNo: task.dealNo),
                       ),
                     );
                   },
@@ -273,10 +275,8 @@ class TableWidget extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => AddTaskScreen(
-                          dealNo: task.dealNo,
-                          isNewTask: false,
-                        ),
+                        builder: (context) => TaskTabScreen(
+                            isNewTask: false, dealNo: task.dealNo),
                       ),
                     );
                   },

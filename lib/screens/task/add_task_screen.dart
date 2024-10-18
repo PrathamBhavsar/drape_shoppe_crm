@@ -9,9 +9,7 @@ import 'package:drape_shoppe_crm/screens/home/widgets/user_modal_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:provider/provider.dart';
-
 import 'widgets/custom_task_icon_widget.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -56,14 +54,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         forceMaterialTransparency: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.close),
+        title: Text(
+          widget.isNewTask ? '' : widget.dealNo.toString(),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        title: Text(widget.isNewTask ? 'Add Task' : 'Edit Task'),
         centerTitle: false,
         actions: [
           GestureDetector(
@@ -123,14 +119,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Visibility(
-                    visible: !widget.isNewTask,
-                    child: Text(
-                      widget.dealNo ?? "",
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                    ),
-                  ),
                   Container(
                     height: 50,
                     child: Row(

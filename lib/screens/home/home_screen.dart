@@ -2,6 +2,7 @@ import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/home_page.dart';
 import 'package:drape_shoppe_crm/screens/home/pages/tasks_page.dart';
+import 'package:drape_shoppe_crm/screens/home/tab_screen.dart';
 import 'package:drape_shoppe_crm/screens/home/widgets/custom_app_bar_widget.dart';
 import 'package:drape_shoppe_crm/screens/task/add_task_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,11 +23,11 @@ class _HomeScreenState extends State<HomeScreen> {
     const TasksPage(),
   ];
 
-  // @override
-  // void initState() {
-  //   HomeProvider.instance.setIncompleteTasks();
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    HomeProvider.instance.setIncompleteTasks();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +45,17 @@ class _HomeScreenState extends State<HomeScreen> {
           HomeProvider.instance.setDealNo();
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => AddTaskScreen(
-                isNewTask: true,
-              ),
+              builder: (context) => TaskTabScreen(isNewTask: true),
             ),
           );
+
+          // Navigator.of(context).push(
+          //   MaterialPageRoute(
+          //     builder: (context) => AddTaskScreen(
+          //       isNewTask: true,
+          //     ),
+          //   ),
+          // );
         },
         child: const Icon(
           Icons.add,

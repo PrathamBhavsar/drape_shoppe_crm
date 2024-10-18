@@ -16,8 +16,6 @@ class CommentsScreen extends StatefulWidget {
 }
 
 class _CommentsScreenState extends State<CommentsScreen> {
-  // Define priority values with text and color
-
   TextEditingController commentController = TextEditingController();
 
   FocusNode commentFocusNode = FocusNode();
@@ -50,7 +48,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                         height: 400,
                         child: FutureBuilder<List<CommentModel>>(
                             future: FirebaseController.instance
-                                .fetchComments('20241009144217'),
+                                .fetchComments(widget.dealNo),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -90,8 +88,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   hintText: 'Type a Message',
                 ),
@@ -105,8 +104,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
               ),
               child: IconButton(
                 onPressed: () {
-                  print(widget.dealNo);
                   HomeProvider.instance.setComment(commentController.text);
+                  FirebaseController.instance.fetchComments(widget.dealNo);
+                  commentController.clear();
                   //clear controller text
                 },
                 icon: Icon(Icons.send_rounded),
@@ -130,7 +130,18 @@ class CustomCommentListView extends StatelessWidget {
       itemCount: comments.length,
       itemBuilder: (context, index) {
         CommentModel comment = comments[index];
-        return Text('${comment.user} : ${comment.comment}');
+        return Column(
+          crossAxisAlignment: (comment.user !=
+                  // HomeProvider.instance.currentUser!.userName
+                  "a@gmail.com")
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.end,
+          children: [
+            Container(
+              child: Text('${comment.user} : ${comment.comment}'),
+            )
+          ],
+        );
       },
     );
   }

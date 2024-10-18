@@ -161,16 +161,12 @@ class HomeProvider extends ChangeNotifier {
       }
     }
 
-    // After processing all tasks, convert userTaskCount map to a list of maps
     userTaskCount.forEach((user, count) {
       userTaskCountList.add({user: count});
     });
-
     notifyListeners();
-
-    // Now you have a map of usernames and their assigned task counts
-    print(userTaskCount); // For debugging
-    print(userTaskCountList); // Debug the list of maps
+    print(userTaskCount);
+    print(userTaskCountList);
   }
 
   UserModel? currentUser;
@@ -230,6 +226,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   String comment = '';
+  List<String> AllComments = [];
   void setComment(String text) {
     comment = text;
     print(comment);
