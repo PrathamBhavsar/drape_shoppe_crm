@@ -90,9 +90,9 @@ class AttachmentsModelWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
-      heightFactor: 0.25,
+      heightFactor: 0.3,
       child: Padding(
-        padding: const EdgeInsets.all(18.0),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -119,8 +119,11 @@ class AttachmentsModelWidget extends StatelessWidget {
                             final ImagePicker picker = ImagePicker();
                             final XFile? photo = await picker.pickImage(
                                 source: ImageSource.gallery);
-                            HomeProvider.instance.pickedFile.add(photo!.path);
-                            print(photo.path);
+                            if (photo != null) {
+                              HomeProvider.instance.pickedFile.add(photo.path);
+                              HomeProvider.instance.pickedFileNames
+                                  .add(photo.name);
+                            }
                           },
                           icon: Icon(
                             Icons.image_outlined,
@@ -151,8 +154,11 @@ class AttachmentsModelWidget extends StatelessWidget {
                             final ImagePicker picker = ImagePicker();
                             final XFile? photo = await picker.pickImage(
                                 source: ImageSource.camera);
-                            print(photo!.path);
-                            HomeProvider.instance.pickedFile.add(photo.path);
+                            if (photo != null) {
+                              HomeProvider.instance.pickedFile.add(photo.path);
+                              HomeProvider.instance.pickedFileNames
+                                  .add(photo.name);
+                            }
                           },
                           icon: Icon(
                             Icons.camera_alt_outlined,
@@ -186,11 +192,13 @@ class AttachmentsModelWidget extends StatelessWidget {
                               type: FileType.custom,
                               allowedExtensions: ['pdf', 'doc'],
                             );
-                            HomeProvider.instance.pickedFile
-                                .addAll(result!.paths.whereType<String>());
-                            print(result.paths);
-                            print(HomeProvider.instance.pickedFile);
-                            Navigator.pop(context);
+                            if (result != null) {
+                              HomeProvider.instance.pickedFile
+                                  .addAll(result.paths.whereType<String>());
+                              HomeProvider.instance.pickedFileNames
+                                  .addAll(result.names.whereType<String>());
+                              Navigator.pop(context);
+                            }
                           },
                           icon: Icon(
                             Icons.file_copy_outlined,

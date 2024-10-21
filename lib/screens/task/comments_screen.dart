@@ -3,6 +3,7 @@ import 'package:drape_shoppe_crm/controllers/firebase_controller.dart';
 import 'package:drape_shoppe_crm/models/comment.dart';
 import 'package:drape_shoppe_crm/providers/home_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CommentsScreen extends StatefulWidget {
   const CommentsScreen(
@@ -35,41 +36,44 @@ class _CommentsScreenState extends State<CommentsScreen> {
         title: const Text('Comments'),
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        child: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus,
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              children: [
-                widget.isNewTask
-                    ? Text('add data')
-                    : Container(
-                        height: 400,
-                        child: FutureBuilder<List<CommentModel>>(
-                            future: FirebaseController.instance
-                                .fetchComments(widget.dealNo),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              if (snapshot.hasError) {
-                                return Center(
-                                  child: Text(snapshot.error.toString()),
-                                );
-                              }
-                              List<CommentModel> comments = snapshot.data!;
+      body: GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            children: [
+              widget.isNewTask
+                  ? Text('add data')
+                  : Expanded(
+                      // Use Expanded to take available space
+                      child: FutureBuilder<List<CommentModel>>(
+                        future: FirebaseController.instance
+                            .fetchComments(widget.dealNo),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(snapshot.error.toString()),
+                            );
+                          }
 
-                              return CustomCommentListView(
-                                comments: comments,
-                              );
-                            }),
+                          // Sort the comments by createdAt (ascending order, latest at the bottom)
+                          List<CommentModel> comments = snapshot.data!;
+                          comments.sort((a, b) => a.createdAt
+                              .compareTo(b.createdAt)); // Ascending order
+
+                          return CustomCommentListView(
+                            comments: comments,
+                          );
+                        },
                       ),
-              ],
-            ),
+                    ),
+            ],
           ),
         ),
       ),
@@ -103,11 +107,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: IconButton(
-                onPressed: () {
+                onPressed: () async {
                   HomeProvider.instance.setComment(commentController.text);
-                  FirebaseController.instance.fetchComments(widget.dealNo);
+
+                  if (widget.isNewTask == true) {
+                    FirebaseController.instance.addCommentToNewTask();
+                  } else {
+                    FirebaseController.instance.addComment(widget.dealNo);
+                  }
+                  await FirebaseController.instance
+                      .fetchComments(widget.dealNo);
+                  setState(() {});
                   commentController.clear();
-                  //clear controller text
                 },
                 icon: Icon(Icons.send_rounded),
               ),
@@ -130,19 +141,77 @@ class CustomCommentListView extends StatelessWidget {
       itemCount: comments.length,
       itemBuilder: (context, index) {
         CommentModel comment = comments[index];
-        return Column(
-          crossAxisAlignment: (comment.user !=
-                  // HomeProvider.instance.currentUser!.userName
-                  "a@gmail.com")
-              ? CrossAxisAlignment.start
-              : CrossAxisAlignment.end,
-          children: [
-            Container(
-              child: Text('${comment.user} : ${comment.comment}'),
-            )
-          ],
-        );
+        bool isUser = comment.user !=
+                // HomeProvider.instance.currentUser!.userName
+                "a@gmail.com" ??
+            false;
+        return CommentChatContainerWidget(comment: comment);
       },
+    );
+  }
+}
+
+class CommentChatContainerWidget extends StatelessWidget {
+  CommentChatContainerWidget({super.key, required this.comment});
+
+  final CommentModel comment;
+
+  late String formattedDueDate =
+      DateFormat("dd MMM''yy").format(comment.createdAt);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: comment.user !=
+                  // HomeProvider.instance.currentUser!.userName
+                  "a@gmail.com"
+              ? Colors.blueAccent
+              : Colors.grey,
+          borderRadius: BorderRadius.only(
+            topLeft: comment.user !=
+                    // HomeProvider.instance.currentUser!.userName
+                    "a@gmail.com"
+                ? Radius.zero
+                : Radius.circular(20.0),
+            topRight: comment.user !=
+                    // HomeProvider.instance.currentU ser!.userName
+                    "a@gmail.com"
+                ? Radius.circular(20.0)
+                : Radius.zero,
+            bottomLeft: Radius.circular(20.0),
+            bottomRight: Radius.circular(20.0),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    comment.user,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    formattedDueDate,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+              SizedBox(height: 5),
+              Text(
+                comment.comment,
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

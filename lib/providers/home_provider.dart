@@ -24,6 +24,7 @@ class HomeProvider extends ChangeNotifier {
   int selectedPriorityIndex = 0;
 
   List<String> pickedFile = [];
+  List<String> pickedFileNames = [];
 
   DateTime now = DateTime.now();
   String dealNo = '';
@@ -189,6 +190,7 @@ class HomeProvider extends ChangeNotifier {
     String assignedToUser = task.assignedTo.join(', ');
     assignedTo.text = assignedToUser;
     designer.text = task.designer;
+    HomeProvider.instance.pickedFileNames.addAll(task.attachments);
 
     selectedStatusIndex = getTaskIndexFromText(task.status);
     selectedPriorityIndex = getPriorityIndexFromText(task.priority);

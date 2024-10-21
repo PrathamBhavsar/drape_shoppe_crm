@@ -219,6 +219,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     focusNode: designerFocusNode,
                     hint: 'Designer',
                   ),
+                  const SizedBox(height: 10),
+                  // Wrap the ListView.builder in Expanded to make it take available space
+                  provider.pickedFileNames.isNotEmpty
+                      ? Container(
+                          height: 100,
+                          child: ListView.builder(
+                            itemCount: provider.pickedFileNames.length,
+                            shrinkWrap: true, // Ensures it doesn't overflow
+                            itemBuilder: (context, index) {
+                              return Text(provider.pickedFileNames[index]);
+                            },
+                          ),
+                        )
+                      : const Text('No files attached'),
                 ],
               );
             },

@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -93,11 +94,80 @@ class FirebaseController {
     return task;
   }
 
-  Future<CommentModel> addComment() async {
+  Future<CommentModel> addCommentToNewTask() async {
     String comment = HomeProvider.instance.comment;
     DateTime now = DateTime.now();
     String? user = _auth.currentUser!.email;
     return CommentModel(user: user!, createdAt: now, comment: comment);
+  }
+
+  // Future<void> addComment(String dealNo) async {
+  //   String comment = HomeProvider.instance.comment;
+  //   DateTime now = DateTime.now();
+  //   String? user = _auth.currentUser!.email;
+  //
+  //   // Create a new comment entry
+  //   CommentModel newComment =
+  //       CommentModel(user: user!, createdAt: now, comment: comment);
+  //
+  //   // Reference to the comments map (assume you store comments under 'comments')
+  //   DocumentReference postRef =
+  //       FirebaseFirestore.instance.collection('tasks').doc(dealNo);
+  //
+  //   // Convert new comment to a map format
+  //   Map<String, dynamic> commentData = {
+  //     'user': newComment.user,
+  //     'createdAt': newComment.createdAt.toIso8601String(),
+  //     'comment': newComment.comment,
+  //   };
+  //
+  //
+  //
+  //   // Generate a new unique ID for the comment (or use any logic you prefer)
+  //   String commentId = FirebaseFirestore.instance.collection('posts').doc().id;
+  //
+  //   // Update the 'comments' map with the new comment
+  //   return postRef.update({
+  //     'comments.$commentId':
+  //         commentData, // Adding the comment to the 'comments' map
+  //   }).then((_) {
+  //     print('Comment added successfully!');
+  //   }).catchError((error) {
+  //     print('Failed to add comment: $error');
+  //   });
+  // }
+
+  Future<void> addComment(String dealNo) async {
+    DateTime now = HomeProvider.instance.now;
+    String? createdBy = _auth.currentUser!.email;
+    String comment = HomeProvider.instance.comment;
+    // Create a new comment entry
+    CommentModel newComment =
+        CommentModel(user: createdBy!, createdAt: now, comment: comment);
+
+    // Reference to the comments map (assume you store comments under 'comments')
+    DocumentReference postRef =
+        FirebaseFirestore.instance.collection('tasks').doc(dealNo);
+
+    // Convert new comment to a map format
+    Map<String, dynamic> commentData = {
+      'user': newComment.user,
+      'created_at': newComment.createdAt,
+      'comment': newComment.comment,
+    };
+
+    // Generate a new unique ID for the comment (or use any logic you prefer)
+    String commentId = await HomeProvider.instance.setDealNo();
+
+    // Update the 'comments' map with the new comment
+    return postRef.update({
+      'comments.$commentId':
+          commentData, // Adding the comment to the 'comments' map
+    }).then((_) {
+      print('Comment added successfully!');
+    }).catchError((error) {
+      print('Failed to add comment: $error');
+    });
   }
 
   Future<List<CommentModel>> fetchComments(String dealNo) async {
